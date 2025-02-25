@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="colorPrimary">#285943</color> <!-- Vert forêt -->
+    <color name="colorPrimaryVariant">#1B4332</color> <!-- Variation plus sombre du vert -->
+    <color name="colorSecondary">#85C1E9</color> <!-- Bleu ciel -->
+    <color name="colorAccent">#8B4513</color> <!-- Marron terre -->
+    <color name="colorBackground">#F5F5DC</color> <!-- Blanc cassé -->
+    <color name="colorSurface">#F4A460</color> <!-- Beige clair -->
+    <color name="colorError">#B00020</color> <!-- Rouge pour les erreurs -->
+    <color name="colorOnPrimary">#FFFFFF</color> <!-- Texte sur la couleur primaire -->
+    <color name="colorOnSecondary">#000000</color> <!-- Texte sur la couleur secondaire -->
 </resources>
