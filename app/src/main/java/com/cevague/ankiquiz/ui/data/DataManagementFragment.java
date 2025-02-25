@@ -19,10 +19,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import com.cevague.ankiquiz.R;
+import com.cevague.ankiquiz.sql.CardModel;
+import com.cevague.ankiquiz.sql.FilesModel;
+import com.cevague.ankiquiz.sql.InfoModel;
 
 
 public class DataManagementFragment extends Fragment {
@@ -51,8 +57,90 @@ public class DataManagementFragment extends Fragment {
 
         buttonPickFile.setOnClickListener(v -> openFilePicker());
 
+        updateDatabase("data/");
+
         return view;
     }
+
+    private void updateDatabase(String folderName){
+        // On récupère la langue en deux caractères
+        String locale_string = Locale.getDefault().getLanguage();
+
+        // Si le fichier __.csv n'existe pas on prend en.csv par défaut
+        String path_csv = folderName + locale_string + ".csv";
+        File file = new File(requireContext().getFilesDir(), path_csv);
+        if(!file.exists()){
+            path_csv = folderName + "en.csv";
+        }
+
+        file = new File(requireContext().getFilesDir(), path_csv);
+
+        if (!file.exists()) {
+            Log.e("FileReader", "❌ Fichier csv introuvable ");
+            return;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            // On saute la première ligne
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                line += ", "; // Pour ne pas faire planter si la dernière colonne est vide
+                String[] tmp_line = line.split(",");
+                InfoModel tmp_info = new InfoModel(-1, tmp_line[1], tmp_line[2], tmp_line[3], tmp_line[4]);
+
+
+                // On donne l'InfoModel et le path vers les fichiers
+                CardModel card_tmp = createCard(tmp_info, folderName+tmp_line[0]);
+
+                // S'il n'y a pas d'image par défaut on en prend une au hasard
+                if(tmp_line[4].isEmpty()){
+                    tmp_info.setImg_uri(card_tmp.getImages().getRandomUri());
+                }else{
+                    // Sinon on reformate le chemin
+                    tmp_info.setImg_uri(folderName+tmp_line[0]+"/"+tmp_line[4]);
+                }
+
+                card_tmp.setInfo(tmp_info);
+                Log.d("FileReader", card_tmp.toString());
+
+                // La on va charger la card dans la DB
+            }
+        } catch (IOException e) {
+            Log.e("FileReader", "Erreur lors de la lecture du fichier", e);
+        }
+    }
+
+    // Crée une cardModel d'après les infos et le path vers le dossier de fichiers
+    private CardModel createCard(InfoModel info, String path){
+
+        ArrayList<String> audios = new ArrayList<String>();
+        ArrayList<String> images = new ArrayList<String>();
+        ArrayList<String> texts = new ArrayList<String>();
+
+        // Pour notre dossier de fichier
+        File subFolder = new File(requireContext().getFilesDir(), path);
+
+        File[] files = subFolder.listFiles();
+        if (files != null && files.length > 0) { // S'il n'est pas vide
+            for (File file : files) {
+                String file_name = file.getName();
+                if(file_name.endsWith("mp3") || file_name.endsWith("wav")){
+                    audios.add(path+"/"+file_name);
+                }else if(file_name.endsWith("jpg") || file_name.endsWith("png")){
+                    images.add(path+"/"+file_name);
+                }else if(file_name.endsWith("txt")){
+                    texts.add(path+"/"+file_name);
+                }
+            }
+        } else {
+            Log.d("FileExplorer", "📂 Aucun fichier dans " + texts);
+        }
+
+        return new CardModel(-1, info, new FilesModel(audios), new FilesModel(images), new FilesModel(texts), true, 0, new Date());
+    }
+
+
 
     // Ouvrir le sélecteur de fichiers (SAF)
     private void openFilePicker() {

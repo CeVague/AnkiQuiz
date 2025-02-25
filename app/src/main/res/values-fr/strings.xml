@@ -2,5 +2,5 @@
 <resources>
     <string name="manage_data">Gérer les données</string>
     <string name="play">Jouer</string>
-    <string name="add">Ajouter</string>
+    <string name="add_dataset">Ajouter de nouvelles fiches</string>
 </resources>
