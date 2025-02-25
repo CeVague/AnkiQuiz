@@ -7,6 +7,6 @@
     <color name="colorBackground">#F5F5DC</color> <!-- Blanc cassé -->
     <color name="colorSurface">#F4A460</color> <!-- Beige clair -->
     <color name="colorError">#B00020</color> <!-- Rouge pour les erreurs -->
-    <color name="colorOnPrimary">#FFFFFF</color> <!-- Texte sur la couleur primaire -->
+    <color name="colorOnPrimary">#F5F5DC</color> <!-- Texte sur la couleur primaire -->
     <color name="colorOnSecondary">#000000</color> <!-- Texte sur la couleur secondaire -->
 </resources>

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AnkiQuiz</string>
+    <string name="manage_data">Data Management</string>
+    <string name="play">Play</string>
 </resources>
