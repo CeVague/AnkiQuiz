@@ -2,5 +2,9 @@
 <resources>
     <string name="manage_data">Gérer les données</string>
     <string name="play">Jouer</string>
-    <string name="add_dataset">Ajouter de nouvelles fiches</string>
+    <string name="import_dataset">Importer un fichier</string>
+    <string name="create_dataset">Créer un nouveau lot...</string>
+    <string name="set_dataset">Nommez le lot de cartes</string>
+    <string name="add">Ajouter</string>
+    <string name="cancel">Annuler</string>
 </resources>

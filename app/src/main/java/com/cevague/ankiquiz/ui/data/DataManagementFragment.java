@@ -11,28 +11,46 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-import java.io.*;
+
+import com.cevague.ankiquiz.DialogNewDatasetFragment;
+import com.cevague.ankiquiz.R;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import com.cevague.ankiquiz.R;
-import com.cevague.ankiquiz.sql.CardModel;
-import com.cevague.ankiquiz.sql.FilesModel;
-import com.cevague.ankiquiz.sql.InfoModel;
-
-
 public class DataManagementFragment extends Fragment {
 
+    ArrayList<String> list_dataset = new ArrayList<String>();
+    ArrayAdapter<String> adapter;
+
+    String CREATE_NEW;
+
+
+    Button button_import;
+    Spinner spinner_import;
     private File internalZipFile; // Emplacement du fichier ZIP dans la mémoire interne
 
     // Lanceur pour sélectionner le fichier
@@ -43,7 +61,7 @@ public class DataManagementFragment extends Fragment {
                     if (fileUri != null) {
                         String fileName = getFileName(fileUri);
                         // Copier le fichier dans la mémoire interne et le décompresser
-                        copyFileToInternalStorage(fileUri, fileName);
+                        copyFileToInternalStorage(fileUri, fileName, "data/" + spinner_import.getSelectedItem().toString());
                     }
                 }
             });
@@ -53,92 +71,116 @@ public class DataManagementFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_data_management, container, false);
 
-        Button buttonPickFile = view.findViewById(R.id.button_add_data);
+        CREATE_NEW = getResources().getString(R.string.create_dataset);
 
-        buttonPickFile.setOnClickListener(v -> openFilePicker());
+        button_import = view.findViewById(R.id.button_import_data);
+        spinner_import = view.findViewById(R.id.spinner_import_data);
 
-        updateDatabase("data/");
+        // Créer un ArrayAdapter avec la liste d'éléments
+        adapter = new ArrayAdapter<>(getContext(),
+                android.R.layout.simple_spinner_item, list_dataset);
+
+        // Spécifier le layout à utiliser lorsque la liste des choix apparaît
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // Appliquer l'adaptateur au Spinner
+        spinner_import.setAdapter(adapter);
+
+        spinner_import.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(position != 0){
+                    // Si on a selectionné un item, on affiche les datas qu'on a dessus
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        actualiseListDataset();
+
+        button_import.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String spinner_item = spinner_import.getSelectedItem().toString();
+                // Si on cherche a créer un nouveau dataset
+                if(spinner_item.equals(CREATE_NEW)){
+
+                    DialogNewDatasetFragment dialogFragment = new DialogNewDatasetFragment();
+                    dialogFragment.setTextInputListener(new DialogNewDatasetFragment.TextInputListener() {
+                        @Override
+                        public void onTextEntered(String text) {
+                            File data_folder = new File(getContext().getFilesDir(), "data/"+text);
+
+                            // Vérifie si le dossier existe, sinon le créer
+                            if (!data_folder.exists()) {
+                                data_folder.mkdirs();
+                                actualiseListDataset();
+                            }
+                        }
+                    });
+                    dialogFragment.show(getParentFragmentManager(), "TextInputDialog");
+                }else{
+
+
+
+
+
+                    // Code de loading d'une BDD
+
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("application/zip");
+                    filePickerLauncher.launch(intent);
+
+
+
+
+
+
+
+                }
+            }
+        });
 
         return view;
     }
 
-    private void updateDatabase(String folderName){
-        // On récupère la langue en deux caractères
-        String locale_string = Locale.getDefault().getLanguage();
+    // Actualise le spinner selon les dossiers présents
+    private void actualiseListDataset(){
+        adapter.clear();
+        adapter.add(CREATE_NEW);
 
-        // Si le fichier __.csv n'existe pas on prend en.csv par défaut
-        String path_csv = folderName + locale_string + ".csv";
-        File file = new File(requireContext().getFilesDir(), path_csv);
-        if(!file.exists()){
-            path_csv = folderName + "en.csv";
+        File data_folder = new File(getContext().getFilesDir(), "data/");
+
+        // Vérifie si le dossier existe, sinon le créer
+        if (!data_folder.exists()) {
+            data_folder.mkdirs();
         }
 
-        file = new File(requireContext().getFilesDir(), path_csv);
-
-        if (!file.exists()) {
-            Log.e("FileReader", "❌ Fichier csv introuvable ");
-            return;
-        }
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            // On saute la première ligne
-            reader.readLine();
-            while ((line = reader.readLine()) != null) {
-                line += ", "; // Pour ne pas faire planter si la dernière colonne est vide
-                String[] tmp_line = line.split(",");
-                InfoModel tmp_info = new InfoModel(-1, tmp_line[1], tmp_line[2], tmp_line[3], tmp_line[4]);
-
-
-                // On donne l'InfoModel et le path vers les fichiers
-                CardModel card_tmp = createCard(tmp_info, folderName+tmp_line[0]);
-
-                // S'il n'y a pas d'image par défaut on en prend une au hasard
-                if(tmp_line[4].isEmpty()){
-                    tmp_info.setImg_uri(card_tmp.getImages().getRandomUri());
-                }else{
-                    // Sinon on reformate le chemin
-                    tmp_info.setImg_uri(folderName+tmp_line[0]+"/"+tmp_line[4]);
-                }
-
-                card_tmp.setInfo(tmp_info);
-                Log.d("FileReader", card_tmp.toString());
-
-                // La on va charger la card dans la DB
-            }
-        } catch (IOException e) {
-            Log.e("FileReader", "Erreur lors de la lecture du fichier", e);
-        }
-    }
-
-    // Crée une cardModel d'après les infos et le path vers le dossier de fichiers
-    private CardModel createCard(InfoModel info, String path){
-
-        ArrayList<String> audios = new ArrayList<String>();
-        ArrayList<String> images = new ArrayList<String>();
-        ArrayList<String> texts = new ArrayList<String>();
-
-        // Pour notre dossier de fichier
-        File subFolder = new File(requireContext().getFilesDir(), path);
-
-        File[] files = subFolder.listFiles();
-        if (files != null && files.length > 0) { // S'il n'est pas vide
-            for (File file : files) {
-                String file_name = file.getName();
-                if(file_name.endsWith("mp3") || file_name.endsWith("wav")){
-                    audios.add(path+"/"+file_name);
-                }else if(file_name.endsWith("jpg") || file_name.endsWith("png")){
-                    images.add(path+"/"+file_name);
-                }else if(file_name.endsWith("txt")){
-                    texts.add(path+"/"+file_name);
+        // Liste des dossiers
+        File[] files = data_folder.listFiles();
+        if(files != null){
+            for(File file : files) {
+                if(file.isDirectory()){
+                    adapter.add(file.getName());
                 }
             }
-        } else {
-            Log.d("FileExplorer", "📂 Aucun fichier dans " + texts);
         }
 
-        return new CardModel(-1, info, new FilesModel(audios), new FilesModel(images), new FilesModel(texts), true, 0, new Date());
+        adapter.notifyDataSetChanged();
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -170,7 +212,7 @@ public class DataManagementFragment extends Fragment {
     }
 
     // Copier le fichier ZIP sélectionné vers la mémoire interne de l'application
-    private void copyFileToInternalStorage(Uri fileUri, String fileName) {
+    private void copyFileToInternalStorage(Uri fileUri, String fileName, String outputPath) {
         try {
             File internalDir = requireContext().getFilesDir(); // Dossier interne de l'app
             internalZipFile = new File(internalDir, fileName);
@@ -188,7 +230,7 @@ public class DataManagementFragment extends Fragment {
             Log.d("FilePicker", "ZIP copié : " + internalZipFile.getAbsolutePath());
 
             // Décompresser après copie
-            unzipFile(internalZipFile, new File(requireContext().getFilesDir(), "data"));
+            unzipFile(internalZipFile, new File(requireContext().getFilesDir(), outputPath));
             internalZipFile.delete();
         } catch (IOException e) {
             e.printStackTrace();
@@ -227,7 +269,6 @@ public class DataManagementFragment extends Fragment {
             }
 
             Toast.makeText(getContext(), "Décompression terminée", Toast.LENGTH_SHORT).show();
-            Log.d("FilePicker", "ZIP décompressé dans : " + outputDir.getAbsolutePath());
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(getContext(), "Erreur de décompression", Toast.LENGTH_SHORT).show();

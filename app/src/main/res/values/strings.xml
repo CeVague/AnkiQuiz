@@ -2,8 +2,13 @@
     <string name="app_name">AnkiQuiz</string>
     <string name="manage_data">Data Management</string>
     <string name="play">Play</string>
-<!-- TODO: Remove or change this placeholder text -->
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="import_dataset">Import dataset</string>
+    <string name="create_dataset">Create a new dataset...</string>
+    <string name="set_dataset">Set dataset name</string>
+    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="add_dataset">Add a new dataset</string>
+    <string name="add">Add</string>
+    <string name="cancel">Cancel</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>
