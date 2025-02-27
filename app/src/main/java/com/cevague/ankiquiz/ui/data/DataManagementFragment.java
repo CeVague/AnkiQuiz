@@ -117,8 +117,13 @@ public class DataManagementFragment extends Fragment {
 
                             // Vérifie si le dossier existe, sinon le créer
                             if (!data_folder.exists()) {
-                                data_folder.mkdirs();
-                                actualiseListDataset();
+                                if(data_folder.mkdirs()){
+                                    actualiseListDataset();
+                                    int i = adapter.getPosition(text);
+                                    spinner_import.setSelection(i);
+                                }else{
+                                    actualiseListDataset();
+                                }
                             }
                         }
                     });
@@ -152,7 +157,6 @@ public class DataManagementFragment extends Fragment {
     // Actualise le spinner selon les dossiers présents
     private void actualiseListDataset(){
         adapter.clear();
-        adapter.add(CREATE_NEW);
 
         File data_folder = new File(getContext().getFilesDir(), "data/");
 
@@ -171,6 +175,7 @@ public class DataManagementFragment extends Fragment {
             }
         }
 
+        adapter.add(CREATE_NEW);
         adapter.notifyDataSetChanged();
     }
 
