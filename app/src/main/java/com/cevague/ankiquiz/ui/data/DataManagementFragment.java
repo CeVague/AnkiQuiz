@@ -27,17 +27,25 @@ import androidx.fragment.app.Fragment;
 
 import com.cevague.ankiquiz.DialogNewDatasetFragment;
 import com.cevague.ankiquiz.R;
+import com.cevague.ankiquiz.sql.DBHelper;
+import com.cevague.ankiquiz.sql.InfoModel;
+import com.cevague.ankiquiz.utils.ZipUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -89,7 +97,9 @@ public class DataManagementFragment extends Fragment {
         spinner_import.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if(position != 0){
+                String str_selected = spinner_import.getSelectedItem().toString();
+                if(!str_selected.equals(CREATE_NEW)){
+                    Toast.makeText(getContext(), str_selected, Toast.LENGTH_SHORT).show();
                     // Si on a selectionné un item, on affiche les datas qu'on a dessus
                 }
             }
@@ -231,52 +241,108 @@ public class DataManagementFragment extends Fragment {
                 }
             }
 
-            Toast.makeText(getContext(), "ZIP copié en interne: " + internalZipFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
             Log.d("FilePicker", "ZIP copié : " + internalZipFile.getAbsolutePath());
+            Log.d("FilePicker", "internalZipFile " + internalZipFile.getPath());
+            Log.d("FilePicker", "outputPath " + outputPath);
 
-            // Décompresser après copie
-            unzipFile(internalZipFile, new File(requireContext().getFilesDir(), outputPath));
+            // Unzip after copy
+            File output_file = new File(requireContext().getFilesDir(), outputPath);
+            ZipUtils.unzip(internalZipFile, output_file);
+            // Delete old zip
             internalZipFile.delete();
+            // populate db
+            readCSVFile(output_file);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(getContext(), "Erreur de copie", Toast.LENGTH_SHORT).show();
         }
     }
 
-    // Décompresser un fichier ZIP
-    private void unzipFile(File zipFile, File outputDir) {
-        if (!outputDir.exists()) {
-            outputDir.mkdirs(); // Créer le dossier si inexistant
+    public static void readCSVFile(File directory) throws IOException {
+        String locale = Locale.getDefault().getLanguage();
+        File[] files = directory.listFiles((dir, name) -> name.equals(locale+".csv"));
+
+        if(files == null || files.length == 0){
+            files = directory.listFiles((dir, name) -> name.equals("en.csv"));
         }
 
-        try (ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile))) {
-            ZipEntry zipEntry;
-            while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-                File newFile = new File(outputDir, zipEntry.getName());
+        if (files != null && files.length > 0) {
+            File csvFile = files[0];
+            try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+                br.readLine();
 
-                if (zipEntry.isDirectory()) {
-                    newFile.mkdirs(); // Créer le dossier si c'est un dossier
-                } else {
-                    File parent = newFile.getParentFile();
-                    if (parent != null && !parent.exists()) {
-                        parent.mkdirs(); // Créer les dossiers parents si besoin
-                    }
-
-                    try (FileOutputStream fileOutputStream = new FileOutputStream(newFile)) {
-                        byte[] buffer = new byte[1024];
-                        int length;
-                        while ((length = zipInputStream.read(buffer)) > 0) {
-                            fileOutputStream.write(buffer, 0, length);
-                        }
-                    }
+                String line;
+                while ((line = br.readLine()) != null) {
+                    System.out.println(line);
                 }
-                zipInputStream.closeEntry();
             }
-
-            Toast.makeText(getContext(), "Décompression terminée", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(getContext(), "Erreur de décompression", Toast.LENGTH_SHORT).show();
+        } else {
+            System.out.println("No CSV file found in directory.");
         }
     }
+
+    private void populateDB(String card_set_name){
+        try (DBHelper db = new DBHelper(getContext())) {
+
+            // On récupère le csv dans la bonne langue, ou en.csv par défaut
+            String locale = Locale.getDefault().getLanguage();
+            String path = "data/"+card_set_name+"/";
+            String path_csv = path+locale+".csv";
+
+            File csv = new File(requireContext().getFilesDir(), path_csv);
+            if(!csv.exists()){
+                path_csv = path+"en.csv";
+                csv = new File(requireContext().getFilesDir(), path_csv);
+            }
+
+            // csv contient le bon csv
+            // On va le lire ligne par ligne
+            InputStream in_stream = new FileInputStream(path_csv);
+            try {
+                InputStreamReader input_reader = new InputStreamReader(in_stream);
+                BufferedReader buff_reader = new BufferedReader(input_reader);
+
+                // Skip first line
+                buff_reader.readLine();
+
+                String line;
+                // read every line of the file into the line-variable, on line at the time
+                do {
+                    line = buff_reader.readLine();
+                    if(line != null){
+                        // folder	name	hint	description	img
+                        String[] fields = (line + ", ").split(",");
+                        InfoModel info = new InfoModel(-1, card_set_name, fields[0], fields[1], fields[2], fields[3], fields[4]);
+
+                        // If info already exist, we get it, else we create it
+                        if(db.existInfo(info.getCard_set(), info.getFolder())){
+                            info = db.getInfo(info.getCard_set(), info.getFolder());
+                        }else{
+                            long id = db.addInfo(info);
+                            info.setId_i(id);
+                        }
+                    }
+                } while (line != null);
+            } catch (Exception ex) {
+                // print stack trace.
+            } finally {
+                in_stream.close();
+            }
+
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        // Lecture du csv
+
+
+
+        // Si info n'existe pas, le creer et creer une Card qui lui est lié
+    }
+
+
+
 }

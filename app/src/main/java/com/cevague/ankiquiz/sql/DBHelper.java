@@ -107,12 +107,13 @@ public class DBHelper extends SQLiteOpenHelper {
         return info;
     }
 
-    public InfoModel getInfo(String folder){
+    public InfoModel getInfo(String card_set, String folder){
         InfoModel info = null;
 
         String request =
-                "SELECT * FROM " + TABLE_INFOS +
-                        " WHERE "+COL_FOLDER+" == " + folder;
+                "SELECT * FROM " + TABLE_INFOS
+                        + " WHERE " + COL_FOLDER + " == " + folder
+                        + " AND " + COL_CARD_SET + " == " + card_set;
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(request, null);
@@ -132,12 +133,31 @@ public class DBHelper extends SQLiteOpenHelper {
         return info;
     }
 
-    public List<InfoModel> getAllInfo(String folder){
+    public boolean existInfo(String card_set, String folder){
+        InfoModel info = null;
+
+        String request =
+                "SELECT * FROM " + TABLE_INFOS
+                        + " WHERE " + COL_FOLDER + " == " + folder
+                        + " AND " + COL_CARD_SET + " == " + card_set;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(request, null);
+
+        boolean tmp = cursor.getCount() > 0;
+
+        cursor.close();
+        db.close();
+
+        return tmp;
+    }
+
+    public List<InfoModel> getAllInfo(String card_set){
         List<InfoModel> listInfo = new ArrayList<InfoModel>();
 
         String request =
                 "SELECT * FROM " + TABLE_INFOS +
-                        " WHERE "+COL_FOLDER+" == " + folder;
+                        " WHERE "+COL_CARD_SET+" == " + card_set;
 
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -170,7 +190,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
 
-        values.put(COL_ID_INFO, info.getId_i());
         values.put(COL_CARD_SET, info.getCard_set());
         values.put(COL_FOLDER, info.getFolder());
         values.put(COL_INFO_NAME, info.getName());
@@ -190,7 +209,6 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(COL_ID_FILE, file.getId_f());
         values.put(COL_ID_INFO, file.getId_i());
         values.put(COL_PATH, file.getPath());
         values.put(COL_TYPE, file.getType());
@@ -207,7 +225,6 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(COL_ID_CARD, card.getId_c());
         values.put(COL_ID_INFO, card.getInfo().getId_i());
         values.put(COL_TO_LEARN, card.isTo_learn());
         values.put(COL_LEVEL, card.getLevel());
