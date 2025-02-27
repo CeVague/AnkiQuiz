@@ -28,6 +28,7 @@ import androidx.fragment.app.Fragment;
 import com.cevague.ankiquiz.DialogNewDatasetFragment;
 import com.cevague.ankiquiz.R;
 import com.cevague.ankiquiz.sql.DBHelper;
+import com.cevague.ankiquiz.sql.FilesModel;
 import com.cevague.ankiquiz.sql.InfoModel;
 import com.cevague.ankiquiz.utils.ZipUtils;
 
@@ -44,6 +45,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
@@ -258,7 +260,7 @@ public class DataManagementFragment extends Fragment {
         }
     }
 
-    public static void readCSVFile(File directory) throws IOException {
+    public void readCSVFile(File directory) throws IOException {
         String locale = Locale.getDefault().getLanguage();
         File[] files = directory.listFiles((dir, name) -> name.equals(locale+".csv"));
 
@@ -273,11 +275,55 @@ public class DataManagementFragment extends Fragment {
 
                 String line;
                 while ((line = br.readLine()) != null) {
-                    System.out.println(line);
+                    String[] fields = (line + ", ").split(",");
+
+                    // Création et/ou ajout d'un info la à DB
+                    InfoModel info_tmp = new InfoModel(-1, directory.getName(), fields[0], fields[1], fields[2], fields[3], fields[4]);
+
+                    InfoModel info = getOrCreateInfo(info_tmp);
+                    Log.i("Populate DB", info.toString());
+
+                    // Check files in their folder
+                    File path_card = new File(requireContext().getFilesDir(), "data/"+info.getCard_set()+"/"+info.getFolder());
+
+                    File[] list_files = path_card.listFiles();
+                    if(list_files != null){
+                        for(File file : list_files){
+
+                            String type = file.getName().substring(file.getName().length()-3);
+
+                            FilesModel file_tmp = new FilesModel(-1, info.getId_i(), file.getName(), type);
+                            addFileDB(file_tmp);
+                            Log.i("Populate DB", file_tmp.toString());
+                        }
+                    }
+
                 }
             }
         } else {
             System.out.println("No CSV file found in directory.");
+        }
+    }
+
+    private InfoModel getOrCreateInfo(InfoModel info){
+        try (DBHelper db = new DBHelper(getContext())) {
+            // If info already exist, we get it, else we create it
+            if (db.existInfo(info.getCard_set(), info.getFolder())) {
+                info = db.getInfo(info.getCard_set(), info.getFolder());
+            } else {
+                long id = db.addInfo(info);
+                info.setId_i(id);
+            }
+        }
+        return info;
+    }
+
+    private void addFileDB(FilesModel file){
+        try (DBHelper db = new DBHelper(getContext())) {
+            // If info already exist, we get it, else we create it
+            if (!db.existFile(file)) {
+                db.addFile(file);
+            }
         }
     }
 
@@ -321,6 +367,11 @@ public class DataManagementFragment extends Fragment {
                             long id = db.addInfo(info);
                             info.setId_i(id);
                         }
+
+
+                        File tmp = new File(requireContext().getFilesDir(), "data/"+card_set_name+"/"+info.getFolder());
+
+                        Log.i("Populate DB", tmp.listFiles().toString());
                     }
                 } while (line != null);
             } catch (Exception ex) {

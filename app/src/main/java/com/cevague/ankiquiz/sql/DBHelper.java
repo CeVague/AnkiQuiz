@@ -112,8 +112,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
         String request =
                 "SELECT * FROM " + TABLE_INFOS
-                        + " WHERE " + COL_FOLDER + " == " + folder
-                        + " AND " + COL_CARD_SET + " == " + card_set;
+                        + " WHERE " + COL_FOLDER + " == '" + folder + "'"
+                        + " AND " + COL_CARD_SET + " == '" + card_set + "'";
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(request, null);
@@ -134,12 +134,10 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public boolean existInfo(String card_set, String folder){
-        InfoModel info = null;
-
         String request =
                 "SELECT * FROM " + TABLE_INFOS
-                        + " WHERE " + COL_FOLDER + " == " + folder
-                        + " AND " + COL_CARD_SET + " == " + card_set;
+                        + " WHERE " + COL_FOLDER + " == '" + folder + "'"
+                        + " AND " + COL_CARD_SET + " == '" + card_set + "'";
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(request, null);
@@ -157,7 +155,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         String request =
                 "SELECT * FROM " + TABLE_INFOS +
-                        " WHERE "+COL_CARD_SET+" == " + card_set;
+                        " WHERE "+COL_CARD_SET+" == '" + card_set + "'";
 
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -185,7 +183,6 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public long addInfo(InfoModel info){
-
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -202,6 +199,23 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
 
         return id;
+    }
+
+    public boolean existFile(FilesModel file){
+        String request =
+                "SELECT * FROM " + TABLE_FILES
+                        + " WHERE " + COL_PATH + " == '" + file.getPath() + "'"
+                        + " AND " + COL_ID_INFO + " == " + file.getId_i();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(request, null);
+
+        boolean tmp = cursor.getCount() > 0;
+
+        cursor.close();
+        db.close();
+
+        return tmp;
     }
 
     public long addFile(FilesModel file){

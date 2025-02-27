@@ -2,17 +2,17 @@ package com.cevague.ankiquiz.sql;
 
 public class FilesModel {
 
-    private long id_i;
     private long id_f;
+    private long id_i;
     private String path;
     private String type;
 
     public FilesModel() {
     }
 
-    public FilesModel(long id_i, long id_f, String path, String type) {
-        this.id_i = id_i;
+    public FilesModel(long id_f, long id_i, String path, String type) {
         this.id_f = id_f;
+        this.id_i = id_i;
         this.path = path;
         this.type = type;
     }
@@ -20,8 +20,8 @@ public class FilesModel {
     @Override
     public String toString() {
         return "FilesModel{" +
-                "id_i=" + id_i +
-                ", id_f=" + id_f +
+                "id_f=" + id_f +
+                ", id_i=" + id_i +
                 ", path='" + path + '\'' +
                 ", type='" + type + '\'' +
                 '}';
