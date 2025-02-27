@@ -18,6 +18,9 @@ public class CardModel {
     private int level;
     private Date next_time;
 
+    public CardModel() {
+    }
+
     public CardModel(long id_c, InfoModel info, FilesModel audios, FilesModel images, FilesModel texts, boolean to_learn, int level, Date next_time) {
         this.id_c = id_c;
         this.info = info;

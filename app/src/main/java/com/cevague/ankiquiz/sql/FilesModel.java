@@ -1,53 +1,61 @@
 package com.cevague.ankiquiz.sql;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Random;
-
 public class FilesModel {
 
-    private List<String> files_uri;
+    private long id_i;
+    private long id_f;
+    private String path;
+    private String type;
 
-    public FilesModel(List<String> files_uri) {
-        this.files_uri = files_uri;
+    public FilesModel() {
+    }
+
+    public FilesModel(long id_i, long id_f, String path, String type) {
+        this.id_i = id_i;
+        this.id_f = id_f;
+        this.path = path;
+        this.type = type;
     }
 
     @Override
     public String toString() {
         return "FilesModel{" +
-                "files_uri=" + files_uri +
+                "id_i=" + id_i +
+                ", id_f=" + id_f +
+                ", path='" + path + '\'' +
+                ", type='" + type + '\'' +
                 '}';
     }
 
-    public List<String> getFilesUri() {
-        return files_uri;
+    public long getId_i() {
+        return id_i;
     }
 
-    public String getRandomUri(){
-        int i = new Random().nextInt(this.files_uri.size());
-        return getOneUri(i);
+    public void setId_i(long id_i) {
+        this.id_i = id_i;
     }
 
-    public String getOneUri(int i){
-        return this.files_uri.get(i);
+    public long getId_f() {
+        return id_f;
     }
 
-    public void addFileUri(String uri) {
-        if(this.files_uri.isEmpty()){
-            this.files_uri = new ArrayList<String>();
-        }
-        this.files_uri.add(uri);
+    public void setId_f(long id_f) {
+        this.id_f = id_f;
     }
 
-    public void setFilesUri(List<String> files_uri) {
-        this.files_uri = files_uri;
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
