@@ -7,4 +7,6 @@
     <string name="set_dataset">Nommez le lot de cartes</string>
     <string name="add">Ajouter</string>
     <string name="cancel">Annuler</string>
+    <string name="add_data">Ajouter des données</string>
+    <string name="create">Créer</string>
 </resources>

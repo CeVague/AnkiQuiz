@@ -8,14 +8,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
 
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.List;
 
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "cards.db";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
 
 
 
@@ -65,6 +63,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String query_files = "CREATE TABLE " + TABLE_FILES + " ("
                 + COL_ID_FILE + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COL_ID_INFO + " INTEGER NOT NULL,"
+                + COL_CARD_SET + " TEXT NOT NULL,"
                 + COL_PATH + " TEXT NOT NULL,"
                 + COL_TYPE + " TEXT NOT NULL,"
                 + "FOREIGN KEY(" + COL_ID_INFO + ") REFERENCES " + TABLE_INFOS + "(" + COL_ID_INFO + "))";
@@ -102,6 +101,7 @@ public class DBHelper extends SQLiteOpenHelper {
             info.setHint(cursor.getString(4));
             info.setDescription(cursor.getString(5));
             info.setImg_path(cursor.getString(6));
+            info.setImg_absolute_path();
         }
         cursor.close();
         return info;
@@ -128,6 +128,7 @@ public class DBHelper extends SQLiteOpenHelper {
             info.setHint(cursor.getString(4));
             info.setDescription(cursor.getString(5));
             info.setImg_path(cursor.getString(6));
+            info.setImg_absolute_path();
         }
         cursor.close();
         return info;
@@ -150,8 +151,8 @@ public class DBHelper extends SQLiteOpenHelper {
         return tmp;
     }
 
-    public List<InfoModel> getAllInfo(String card_set){
-        List<InfoModel> listInfo = new ArrayList<InfoModel>();
+    public ArrayList<InfoModel> getAllInfo(String card_set){
+        ArrayList<InfoModel> listInfo = new ArrayList<InfoModel>();
 
         String request =
                 "SELECT * FROM " + TABLE_INFOS +
@@ -171,6 +172,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 info.setHint(cursor.getString(4));
                 info.setDescription(cursor.getString(5));
                 info.setImg_path(cursor.getString(6));
+                info.setImg_absolute_path();
 
                 listInfo.add(info);
             }while(cursor.moveToNext());
@@ -224,6 +226,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
         values.put(COL_ID_INFO, file.getId_i());
+        values.put(COL_CARD_SET, file.getCard_set());
         values.put(COL_PATH, file.getPath());
         values.put(COL_TYPE, file.getType());
 
@@ -232,6 +235,44 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
 
         return id;
+    }
+
+    public ArrayList<FilesModel> getAllFiles(String card_set){
+        return getAllFiles(card_set, "");
+    }
+
+    public ArrayList<FilesModel> getAllFiles(String card_set, String type){
+        ArrayList<FilesModel> listFiles = new ArrayList<FilesModel>();
+
+        String request =
+                "SELECT * FROM " + TABLE_FILES +
+                        " WHERE "+COL_CARD_SET+" == '" + card_set + "'";
+
+        if(!type.isEmpty()){
+            request += " AND "+COL_TYPE+" == '" + type +"'";
+        }
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(request, null);
+
+        if(cursor.moveToFirst()){
+            do{
+                FilesModel file = new FilesModel();
+                file.setId_f(cursor.getLong(0));
+                file.setId_i(cursor.getLong(1));
+                file.setCard_set(cursor.getString(2));
+                file.setPath(cursor.getString(3));
+                file.setType(cursor.getString(4));
+
+                listFiles.add(file);
+            }while(cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+
+        return listFiles;
     }
 
     public long addCard(CardModel card){

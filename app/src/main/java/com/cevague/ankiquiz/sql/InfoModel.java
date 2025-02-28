@@ -1,7 +1,5 @@
 package com.cevague.ankiquiz.sql;
 
-import androidx.annotation.NonNull;
-
 public class InfoModel {
 
     private long id_i;
@@ -11,6 +9,7 @@ public class InfoModel {
     private String hint;
     private String description;
     private String img_path;
+    private String absolute_path;
 
     public InfoModel() {
     }
@@ -35,6 +34,7 @@ public class InfoModel {
                 ", hint='" + hint + '\'' +
                 ", description='" + description + '\'' +
                 ", img_path='" + img_path + '\'' +
+                ", absolute_path='" + absolute_path + '\'' +
                 '}';
     }
 
@@ -93,4 +93,18 @@ public class InfoModel {
     public void setImg_path(String img_path) {
         this.img_path = img_path;
     }
+
+    public String getImg_absolute_path() {
+        return absolute_path;
+    }
+
+    public void setImg_absolute_path(String absolute_path) {
+        this.absolute_path = absolute_path;
+    }
+
+    public void setImg_absolute_path() {
+        this.absolute_path = "data/"+getCard_set()+"/"+getFolder()+"/"+getImg_path();
+    }
+
+
 }

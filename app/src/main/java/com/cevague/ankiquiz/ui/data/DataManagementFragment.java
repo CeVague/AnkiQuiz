@@ -24,6 +24,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.cevague.ankiquiz.DialogNewDatasetFragment;
 import com.cevague.ankiquiz.R;
@@ -48,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -101,8 +104,60 @@ public class DataManagementFragment extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String str_selected = spinner_import.getSelectedItem().toString();
                 if(!str_selected.equals(CREATE_NEW)){
-                    Toast.makeText(getContext(), str_selected, Toast.LENGTH_SHORT).show();
                     // Si on a selectionné un item, on affiche les datas qu'on a dessus
+                    button_import.setText(R.string.add_data);
+
+                    RecyclerView recyclerView = requireView().findViewById(R.id.recyclerView_data);
+
+                    try (DBHelper db = new DBHelper(getContext())) {
+                        ArrayList<InfoModel> list_info = db.getAllInfo(str_selected);
+                        ArrayList<FilesModel> list_file = db.getAllFiles(str_selected);
+                        InfoRecyclerViewAdapter infoRVA = new InfoRecyclerViewAdapter(getContext(), list_info, list_file);
+                        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                        recyclerView.setAdapter(infoRVA);
+
+
+
+
+                        recyclerView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Toast.makeText(getContext(), "coucou", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+
+
+
+                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                }else{
+                    RecyclerView recyclerView = requireView().findViewById(R.id.recyclerView_data);
+                    ArrayList<InfoModel> list_info = new ArrayList<InfoModel>();
+                    ArrayList<FilesModel> list_file = new ArrayList<FilesModel>();
+                    InfoRecyclerViewAdapter infoRVA = new InfoRecyclerViewAdapter(getContext(), list_info, list_file);
+                    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                    recyclerView.setAdapter(infoRVA);
+
+
+
+
+
+                    button_import.setText(R.string.create);
+                    button_import.callOnClick();
                 }
             }
 
@@ -141,24 +196,12 @@ public class DataManagementFragment extends Fragment {
                     });
                     dialogFragment.show(getParentFragmentManager(), "TextInputDialog");
                 }else{
-
-
-
-
-
                     // Code de loading d'une BDD
 
                     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                     intent.addCategory(Intent.CATEGORY_OPENABLE);
                     intent.setType("application/zip");
                     filePickerLauncher.launch(intent);
-
-
-
-
-
-
-
                 }
             }
         });
@@ -260,7 +303,7 @@ public class DataManagementFragment extends Fragment {
         }
     }
 
-    public void readCSVFile(File directory) throws IOException {
+    private void readCSVFile(File directory) throws IOException {
         String locale = Locale.getDefault().getLanguage();
         File[] files = directory.listFiles((dir, name) -> name.equals(locale+".csv"));
 
@@ -292,7 +335,7 @@ public class DataManagementFragment extends Fragment {
 
                             String type = file.getName().substring(file.getName().length()-3);
 
-                            FilesModel file_tmp = new FilesModel(-1, info.getId_i(), file.getName(), type);
+                            FilesModel file_tmp = new FilesModel(-1, info.getId_i(), info.getCard_set(), file.getName(), type);
                             addFileDB(file_tmp);
                             Log.i("Populate DB", file_tmp.toString());
                         }
