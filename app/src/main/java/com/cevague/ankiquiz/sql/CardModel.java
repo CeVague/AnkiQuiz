@@ -1,18 +1,17 @@
 package com.cevague.ankiquiz.sql;
 
-import android.icu.text.IDNA;
-
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class CardModel {
 
     private long id_c;
     private InfoModel info;
-    private FilesModel audios;
-    private FilesModel images;
-    private FilesModel texts;
+    private ArrayList<FileModel> audios;
+    private ArrayList<FileModel> images;
+    private ArrayList<FileModel> texts;
 
     private boolean to_learn;
     private int level;
@@ -21,7 +20,7 @@ public class CardModel {
     public CardModel() {
     }
 
-    public CardModel(long id_c, InfoModel info, FilesModel audios, FilesModel images, FilesModel texts, boolean to_learn, int level, Date next_time) {
+    public CardModel(long id_c, InfoModel info, ArrayList<FileModel> audios, ArrayList<FileModel> images, ArrayList<FileModel> texts, boolean to_learn, int level, Date next_time) {
         this.id_c = id_c;
         this.info = info;
         this.audios = audios;
@@ -63,27 +62,27 @@ public class CardModel {
         this.info = info;
     }
 
-    public FilesModel getAudios() {
+    public ArrayList<FileModel> getAudios() {
         return audios;
     }
 
-    public void setAudios(FilesModel audios) {
+    public void setAudios(ArrayList<FileModel> audios) {
         this.audios = audios;
     }
 
-    public FilesModel getImages() {
+    public ArrayList<FileModel> getImages() {
         return images;
     }
 
-    public void setImages(FilesModel images) {
+    public void setImages(ArrayList<FileModel> images) {
         this.images = images;
     }
 
-    public FilesModel getTexts() {
+    public ArrayList<FileModel> getTexts() {
         return texts;
     }
 
-    public void setTexts(FilesModel texts) {
+    public void setTexts(ArrayList<FileModel> texts) {
         this.texts = texts;
     }
 

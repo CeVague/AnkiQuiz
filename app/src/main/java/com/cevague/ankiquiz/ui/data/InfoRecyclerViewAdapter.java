@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cevague.ankiquiz.R;
-import com.cevague.ankiquiz.sql.FilesModel;
+import com.cevague.ankiquiz.sql.FileModel;
 import com.cevague.ankiquiz.sql.InfoModel;
 
 import java.io.File;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class InfoRecyclerViewAdapter extends RecyclerView.Adapter<InfoRecyclerViewAdapter.MyViewHolder> {
     Context context;
     ArrayList<InfoModel> list_info;
-    ArrayList<FilesModel> list_file;
+    ArrayList<FileModel> list_file;
     OnItemClickListener listener;
 
     public interface OnItemClickListener {
@@ -33,7 +33,7 @@ public class InfoRecyclerViewAdapter extends RecyclerView.Adapter<InfoRecyclerVi
         this.listener = listener;
     }
 
-    public InfoRecyclerViewAdapter(Context context, ArrayList<InfoModel> list_info, ArrayList<FilesModel> list_file) {
+    public InfoRecyclerViewAdapter(Context context, ArrayList<InfoModel> list_info, ArrayList<FileModel> list_file) {
         this.context = context;
         this.list_info = list_info;
         this.list_file = list_file;
@@ -79,7 +79,7 @@ public class InfoRecyclerViewAdapter extends RecyclerView.Adapter<InfoRecyclerVi
     private int countFile(long id_i, String type){
         int nb = 0;
 
-        for(FilesModel file : list_file){
+        for(FileModel file : list_file){
             if(file.getType().equals(type) && (file.getId_i() == id_i)){
                 nb++;
             }

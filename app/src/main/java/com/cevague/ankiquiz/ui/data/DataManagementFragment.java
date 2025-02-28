@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -22,7 +21,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,13 +28,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cevague.ankiquiz.DialogNewDatasetFragment;
 import com.cevague.ankiquiz.R;
 import com.cevague.ankiquiz.sql.DBHelper;
-import com.cevague.ankiquiz.sql.FilesModel;
+import com.cevague.ankiquiz.sql.FileModel;
 import com.cevague.ankiquiz.sql.InfoModel;
 import com.cevague.ankiquiz.utils.AudioPlayer;
 import com.cevague.ankiquiz.utils.ZipUtils;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,15 +42,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Random;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 public class DataManagementFragment extends Fragment {
 
@@ -113,7 +103,7 @@ public class DataManagementFragment extends Fragment {
 
                     try (DBHelper db = new DBHelper(getContext())) {
                         ArrayList<InfoModel> list_info = db.getAllInfo(str_selected);
-                        ArrayList<FilesModel> list_file = db.getAllFiles(str_selected);
+                        ArrayList<FileModel> list_file = db.getAllFiles(str_selected);
                         InfoRecyclerViewAdapter infoRVA = new InfoRecyclerViewAdapter(getContext(), list_info, list_file);
                         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                         recyclerView.setAdapter(infoRVA);
@@ -122,7 +112,7 @@ public class DataManagementFragment extends Fragment {
                         infoRVA.setOnItemClickListener(new InfoRecyclerViewAdapter.OnItemClickListener() {
                             @Override
                             public void onItemClick(InfoModel item) {
-                                ArrayList<FilesModel> list_file = db.getAllFiles(item.getId_i(), "mp3");
+                                ArrayList<FileModel> list_file = db.getAllFiles(item.getId_i(), "mp3");
 
                                 int r = new Random().nextInt(list_file.size());
                                 AudioPlayer.playAudio(getContext(), list_file.get(r).getAbsolute_path());
@@ -150,7 +140,7 @@ public class DataManagementFragment extends Fragment {
                 }else{
                     RecyclerView recyclerView = requireView().findViewById(R.id.recyclerView_data);
                     ArrayList<InfoModel> list_info = new ArrayList<InfoModel>();
-                    ArrayList<FilesModel> list_file = new ArrayList<FilesModel>();
+                    ArrayList<FileModel> list_file = new ArrayList<FileModel>();
                     InfoRecyclerViewAdapter infoRVA = new InfoRecyclerViewAdapter(getContext(), list_info, list_file);
                     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                     recyclerView.setAdapter(infoRVA);
@@ -338,7 +328,7 @@ public class DataManagementFragment extends Fragment {
 
                             String type = file.getName().substring(file.getName().length()-3);
 
-                            FilesModel file_tmp = new FilesModel(-1, info.getId_i(), info.getCard_set(), file.getName(), path_card + "/" + file.getName(), type);
+                            FileModel file_tmp = new FileModel(-1, info.getId_i(), info.getCard_set(), file.getName(), path_card + "/" + file.getName(), type);
                             addFileDB(file_tmp);
                             Log.i("Populate DB", file_tmp.toString());
                         }
@@ -364,7 +354,7 @@ public class DataManagementFragment extends Fragment {
         return info;
     }
 
-    private void addFileDB(FilesModel file){
+    private void addFileDB(FileModel file){
         try (DBHelper db = new DBHelper(getContext())) {
             // If info already exist, we get it, else we create it
             if (!db.existFile(file)) {

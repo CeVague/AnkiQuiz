@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
 
+import java.text.DateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class DBHelper extends SQLiteOpenHelper {
@@ -205,7 +207,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return id;
     }
 
-    public boolean existFile(FilesModel file){
+    public boolean existFile(FileModel file){
         String request =
                 "SELECT * FROM " + TABLE_FILES
                         + " WHERE " + COL_PATH + " == '" + file.getPath() + "'"
@@ -222,7 +224,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return tmp;
     }
 
-    public long addFile(FilesModel file){
+    public long addFile(FileModel file){
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -240,12 +242,12 @@ public class DBHelper extends SQLiteOpenHelper {
         return id;
     }
 
-    public ArrayList<FilesModel> getAllFiles(String card_set){
+    public ArrayList<FileModel> getAllFiles(String card_set){
         return getAllFiles(card_set, "");
     }
 
-    public ArrayList<FilesModel> getAllFiles(String card_set, String type){
-        ArrayList<FilesModel> listFiles = new ArrayList<FilesModel>();
+    public ArrayList<FileModel> getAllFiles(String card_set, String type){
+        ArrayList<FileModel> listFiles = new ArrayList<FileModel>();
 
         String request =
                 "SELECT * FROM " + TABLE_FILES +
@@ -261,7 +263,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         if(cursor.moveToFirst()){
             do{
-                FilesModel file = new FilesModel();
+                FileModel file = new FileModel();
                 file.setId_f(cursor.getLong(0));
                 file.setId_i(cursor.getLong(1));
                 file.setCard_set(cursor.getString(2));
@@ -279,12 +281,12 @@ public class DBHelper extends SQLiteOpenHelper {
         return listFiles;
     }
 
-    public ArrayList<FilesModel> getAllFiles(long id_i){
+    public ArrayList<FileModel> getAllFiles(long id_i){
         return getAllFiles(id_i, "");
     }
 
-    public ArrayList<FilesModel> getAllFiles(long id_i, String type){
-        ArrayList<FilesModel> listFiles = new ArrayList<FilesModel>();
+    public ArrayList<FileModel> getAllFiles(long id_i, String type){
+        ArrayList<FileModel> listFiles = new ArrayList<FileModel>();
 
         String request =
                 "SELECT * FROM " + TABLE_FILES +
@@ -300,7 +302,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         if(cursor.moveToFirst()){
             do{
-                FilesModel file = new FilesModel();
+                FileModel file = new FileModel();
                 file.setId_f(cursor.getLong(0));
                 file.setId_i(cursor.getLong(1));
                 file.setCard_set(cursor.getString(2));
@@ -326,7 +328,9 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COL_ID_INFO, card.getInfo().getId_i());
         values.put(COL_TO_LEARN, card.isTo_learn());
         values.put(COL_LEVEL, card.getLevel());
-        values.put(COL_NEXT_TIME, card.getNext_time().toString());
+
+        String dateFormat = (String) android.text.format.DateFormat.format("yyyy-MM-dd", card.getNext_time());
+        values.put(COL_NEXT_TIME, dateFormat);
 
         long id = db.insert(TABLE_CARDS, null, values);
 
