@@ -32,6 +32,7 @@ import com.cevague.ankiquiz.R;
 import com.cevague.ankiquiz.sql.DBHelper;
 import com.cevague.ankiquiz.sql.FilesModel;
 import com.cevague.ankiquiz.sql.InfoModel;
+import com.cevague.ankiquiz.utils.AudioPlayer;
 import com.cevague.ankiquiz.utils.ZipUtils;
 
 import java.io.BufferedInputStream;
@@ -51,6 +52,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -117,12 +119,13 @@ public class DataManagementFragment extends Fragment {
                         recyclerView.setAdapter(infoRVA);
 
 
-
-
-                        recyclerView.setOnClickListener(new View.OnClickListener() {
+                        infoRVA.setOnItemClickListener(new InfoRecyclerViewAdapter.OnItemClickListener() {
                             @Override
-                            public void onClick(View v) {
-                                Toast.makeText(getContext(), "coucou", Toast.LENGTH_SHORT).show();
+                            public void onItemClick(InfoModel item) {
+                                ArrayList<FilesModel> list_file = db.getAllFiles(item.getId_i(), "mp3");
+
+                                int r = new Random().nextInt(list_file.size());
+                                AudioPlayer.playAudio(getContext(), list_file.get(r).getAbsolute_path());
                             }
                         });
 
@@ -335,7 +338,7 @@ public class DataManagementFragment extends Fragment {
 
                             String type = file.getName().substring(file.getName().length()-3);
 
-                            FilesModel file_tmp = new FilesModel(-1, info.getId_i(), info.getCard_set(), file.getName(), type);
+                            FilesModel file_tmp = new FilesModel(-1, info.getId_i(), info.getCard_set(), file.getName(), path_card + "/" + file.getName(), type);
                             addFileDB(file_tmp);
                             Log.i("Populate DB", file_tmp.toString());
                         }

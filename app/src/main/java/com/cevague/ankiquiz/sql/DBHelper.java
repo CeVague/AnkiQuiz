@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "cards.db";
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 1;
 
 
 
@@ -31,6 +31,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String TABLE_FILES = "files";
     private static final String COL_ID_FILE = "id_f";
     private static final String COL_PATH = "path";
+    private static final String COL_ABSOLUTE_PATH = "abs_path";
     private static final String COL_TYPE = "type";
 
 
@@ -65,6 +66,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + COL_ID_INFO + " INTEGER NOT NULL,"
                 + COL_CARD_SET + " TEXT NOT NULL,"
                 + COL_PATH + " TEXT NOT NULL,"
+                + COL_ABSOLUTE_PATH + " TEXT NOT NULL,"
                 + COL_TYPE + " TEXT NOT NULL,"
                 + "FOREIGN KEY(" + COL_ID_INFO + ") REFERENCES " + TABLE_INFOS + "(" + COL_ID_INFO + "))";
 
@@ -228,6 +230,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COL_ID_INFO, file.getId_i());
         values.put(COL_CARD_SET, file.getCard_set());
         values.put(COL_PATH, file.getPath());
+        values.put(COL_ABSOLUTE_PATH, file.getAbsolute_path());
         values.put(COL_TYPE, file.getType());
 
         long id = db.insert(TABLE_FILES, null, values);
@@ -263,7 +266,47 @@ public class DBHelper extends SQLiteOpenHelper {
                 file.setId_i(cursor.getLong(1));
                 file.setCard_set(cursor.getString(2));
                 file.setPath(cursor.getString(3));
-                file.setType(cursor.getString(4));
+                file.setAbsolute_path(cursor.getString(4));
+                file.setType(cursor.getString(5));
+
+                listFiles.add(file);
+            }while(cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+
+        return listFiles;
+    }
+
+    public ArrayList<FilesModel> getAllFiles(long id_i){
+        return getAllFiles(id_i, "");
+    }
+
+    public ArrayList<FilesModel> getAllFiles(long id_i, String type){
+        ArrayList<FilesModel> listFiles = new ArrayList<FilesModel>();
+
+        String request =
+                "SELECT * FROM " + TABLE_FILES +
+                        " WHERE "+COL_ID_INFO+" == " + id_i;
+
+        if(!type.isEmpty()){
+            request += " AND "+COL_TYPE+" == '" + type +"'";
+        }
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(request, null);
+
+        if(cursor.moveToFirst()){
+            do{
+                FilesModel file = new FilesModel();
+                file.setId_f(cursor.getLong(0));
+                file.setId_i(cursor.getLong(1));
+                file.setCard_set(cursor.getString(2));
+                file.setPath(cursor.getString(3));
+                file.setAbsolute_path(cursor.getString(4));
+                file.setType(cursor.getString(5));
 
                 listFiles.add(file);
             }while(cursor.moveToNext());

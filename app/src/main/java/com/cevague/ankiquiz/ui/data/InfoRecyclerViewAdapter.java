@@ -23,6 +23,15 @@ public class InfoRecyclerViewAdapter extends RecyclerView.Adapter<InfoRecyclerVi
     Context context;
     ArrayList<InfoModel> list_info;
     ArrayList<FilesModel> list_file;
+    OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onItemClick(InfoModel item);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener){
+        this.listener = listener;
+    }
 
     public InfoRecyclerViewAdapter(Context context, ArrayList<InfoModel> list_info, ArrayList<FilesModel> list_file) {
         this.context = context;
@@ -59,6 +68,12 @@ public class InfoRecyclerViewAdapter extends RecyclerView.Adapter<InfoRecyclerVi
             holder.image_view.setImageResource(R.drawable.ic_launcher_background);
         }
 
+        // Gérer le clic en passant l'élément cliqué au Fragment
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(info);
+            }
+        });
     }
 
     private int countFile(long id_i, String type){
@@ -68,7 +83,6 @@ public class InfoRecyclerViewAdapter extends RecyclerView.Adapter<InfoRecyclerVi
             if(file.getType().equals(type) && (file.getId_i() == id_i)){
                 nb++;
             }
-            System.out.println(file);
         }
 
         return nb;

@@ -6,16 +6,18 @@ public class FilesModel {
     private long id_i;
     private String card_set;
     private String path;
+    private String absolute_path;
     private String type;
 
     public FilesModel() {
     }
 
-    public FilesModel(long id_f, long id_i, String card_set, String path, String type) {
+    public FilesModel(long id_f, long id_i, String card_set, String path, String absolute_path, String type) {
         this.id_f = id_f;
         this.id_i = id_i;
         this.card_set = card_set;
         this.path = path;
+        this.absolute_path = absolute_path;
         this.type = type;
     }
 
@@ -26,6 +28,7 @@ public class FilesModel {
                 ", id_i=" + id_i +
                 ", card_set='" + card_set + '\'' +
                 ", path='" + path + '\'' +
+                ", absolute_path='" + absolute_path + '\'' +
                 ", type='" + type + '\'' +
                 '}';
     }
@@ -60,6 +63,14 @@ public class FilesModel {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getAbsolute_path() {
+        return absolute_path;
+    }
+
+    public void setAbsolute_path(String absolute_path) {
+        this.absolute_path = absolute_path;
     }
 
     public String getType() {
