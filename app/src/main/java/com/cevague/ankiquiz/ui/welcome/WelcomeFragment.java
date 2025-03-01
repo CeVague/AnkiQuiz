@@ -1,5 +1,8 @@
 package com.cevague.ankiquiz.ui.welcome;
 
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
+import android.animation.ValueAnimator;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -16,7 +19,7 @@ import com.cevague.ankiquiz.ui.data.DataManagementFragment;
 
 public class WelcomeFragment extends Fragment {
 
-    Button buttonData, buttonPlay;
+    Button buttonPlay;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -24,30 +27,23 @@ public class WelcomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_welcome, container, false);
 
-        buttonData = view.findViewById(R.id.button_load);
         buttonPlay = view.findViewById(R.id.button_play);
 
-        buttonData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Create an instance of the new fragment
-                DataManagementFragment newFragment = new DataManagementFragment();
-
-                // Get the FragmentManager and start a transaction
-                FragmentManager fragmentManager = getParentFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-
-                // Replace the current fragment with the new fragment
-                transaction.replace(R.id.fragment_container, newFragment);
-
-                // Add the transaction to the back stack (optional)
-                transaction.addToBackStack(null);
-
-                // Commit the transaction
-                transaction.commit();
-            }
-        });
+        startPulseAnimation(buttonPlay);
 
         return view;
+    }
+
+
+    private void startPulseAnimation(View view) {
+        ObjectAnimator scaleDown = ObjectAnimator.ofPropertyValuesHolder(
+                view,
+                PropertyValuesHolder.ofFloat("scaleX", 1.0f, 1.5f),
+                PropertyValuesHolder.ofFloat("scaleY", 1.0f, 1.5f)
+        );
+        scaleDown.setDuration(700);
+        scaleDown.setRepeatCount(ValueAnimator.INFINITE);
+        scaleDown.setRepeatMode(ValueAnimator.REVERSE);
+        scaleDown.start();
     }
 }
