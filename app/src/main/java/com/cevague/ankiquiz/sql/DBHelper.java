@@ -339,6 +339,29 @@ public class DBHelper extends SQLiteOpenHelper {
         return id;
     }
 
+
+    public ArrayList<String> getAllCardSet(){
+        ArrayList<String> listFiles = new ArrayList<String>();
+
+        String request = "SELECT DISTINCT " + COL_CARD_SET + " FROM " + TABLE_INFOS ;
+
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(request, null);
+
+        if(cursor.moveToFirst()){
+            do{
+                listFiles.add(cursor.getString(0));
+            }while(cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+
+        return listFiles;
+    }
+
     public void onReset() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_FILES);

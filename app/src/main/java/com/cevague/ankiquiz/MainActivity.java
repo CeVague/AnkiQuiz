@@ -26,10 +26,7 @@ public class MainActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
-
-
-        addFragment(new WelcomeFragment());
+        addFragment(new WelcomeFragment(), false);
     }
 
     // Créer le menu
@@ -58,19 +55,22 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
     private void addFragment(Fragment fragment){
+        addFragment(fragment, true);
+    }
+    private void addFragment(Fragment fragment, boolean addToBackstack){
         // Obtenir le FragmentManager
         FragmentManager fragmentManager = getSupportFragmentManager();
 
         // Commencer une transaction de fragment
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-
         // Remplacer le contenu du FragmentContainerView par le fragment
         transaction.replace(R.id.fragment_container, fragment);
 
-        // Ajouter la transaction à la back stack (optionnel)
-        transaction.addToBackStack(null);
+        if(addToBackstack){
+            // Ajouter la transaction à la back stack (optionnel)
+            transaction.addToBackStack(null);
+        }
 
         // Valider la transaction
         transaction.commit();

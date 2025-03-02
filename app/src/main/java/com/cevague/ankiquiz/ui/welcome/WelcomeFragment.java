@@ -12,10 +12,13 @@ import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 
 import com.cevague.ankiquiz.R;
 import com.cevague.ankiquiz.ui.data.DataManagementFragment;
+import com.cevague.ankiquiz.ui.selection.SelectionFragment;
 
 public class WelcomeFragment extends Fragment {
 
@@ -29,7 +32,32 @@ public class WelcomeFragment extends Fragment {
 
         buttonPlay = view.findViewById(R.id.button_play);
 
-        startPulseAnimation(buttonPlay);
+        // startPulseAnimation(buttonPlay);
+
+        // Trouver le bouton dans le layout
+        Button button = view.findViewById(R.id.button_tmp);
+
+
+        buttonPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment fragment = new SelectionFragment();
+                // Obtenir le FragmentManager
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+
+                // Commencer une transaction de fragment
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                // Remplacer le contenu du FragmentContainerView par le fragment
+                transaction.replace(R.id.fragment_container, fragment);
+
+                // Ajouter la transaction à la back stack (optionnel)
+                transaction.addToBackStack(null);
+
+                // Valider la transaction
+                transaction.commit();
+            }
+        });
+
 
         return view;
     }

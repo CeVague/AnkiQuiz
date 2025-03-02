@@ -25,7 +25,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.cevague.ankiquiz.DialogNewDatasetFragment;
 import com.cevague.ankiquiz.R;
 import com.cevague.ankiquiz.sql.DBHelper;
 import com.cevague.ankiquiz.sql.FileModel;
@@ -96,48 +95,14 @@ public class DataManagementFragment extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String str_selected = spinner_import.getSelectedItem().toString();
                 if(!str_selected.equals(CREATE_NEW)){
+                    button_import.setEnabled(true);
                     // Si on a selectionné un item, on affiche les datas qu'on a dessus
-                    button_import.setText(R.string.add_data);
-
                     RecyclerView recyclerView = requireView().findViewById(R.id.recyclerView_data);
 
-                    try (DBHelper db = new DBHelper(getContext())) {
-                        ArrayList<InfoModel> list_info = db.getAllInfo(str_selected);
-                        ArrayList<FileModel> list_file = db.getAllFiles(str_selected);
-                        InfoRecyclerViewAdapter infoRVA = new InfoRecyclerViewAdapter(getContext(), list_info, list_file);
-                        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                        recyclerView.setAdapter(infoRVA);
-
-
-                        infoRVA.setOnItemClickListener(new InfoRecyclerViewAdapter.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(InfoModel item) {
-                                ArrayList<FileModel> list_file = db.getAllFiles(item.getId_i(), "mp3");
-
-                                int r = new Random().nextInt(list_file.size());
-                                AudioPlayer.playAudio(getContext(), list_file.get(r).getAbsolute_path());
-                            }
-                        });
-
-
-
-
-                    }
-
-
-
-
-
-
-
-
-
-
-
-
-
+                    actualiseListRV(str_selected);
 
                 }else{
+                    button_import.setEnabled(false);
                     RecyclerView recyclerView = requireView().findViewById(R.id.recyclerView_data);
                     ArrayList<InfoModel> list_info = new ArrayList<InfoModel>();
                     ArrayList<FileModel> list_file = new ArrayList<FileModel>();
@@ -145,11 +110,6 @@ public class DataManagementFragment extends Fragment {
                     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                     recyclerView.setAdapter(infoRVA);
 
-
-
-
-
-                    button_import.setText(R.string.create);
                     button_import.callOnClick();
                 }
             }
@@ -176,14 +136,14 @@ public class DataManagementFragment extends Fragment {
                             File data_folder = new File(getContext().getFilesDir(), "data/"+text);
 
                             // Vérifie si le dossier existe, sinon le créer
-                            if (!data_folder.exists()) {
-                                if(data_folder.mkdirs()){
-                                    actualiseListDataset();
-                                    int i = adapter.getPosition(text);
-                                    spinner_import.setSelection(i);
-                                }else{
-                                    actualiseListDataset();
-                                }
+                            if (!text.isBlank() && isValidString(text)) {
+                                data_folder.mkdirs();
+                                actualiseListDataset();
+                                int i = adapter.getPosition(text);
+                                spinner_import.setSelection(i);
+                                button_import.setEnabled(true);
+                            }else{
+                                Toast.makeText(getContext(), "Ce nom n'est pas valide", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
@@ -201,6 +161,40 @@ public class DataManagementFragment extends Fragment {
 
         return view;
     }
+
+
+
+    private static boolean isValidString(String input) {
+        // Expression régulière pour vérifier les caractères autorisés
+        String regex = "^[a-zA-Z0-9 _]*$";
+
+        // Vérification de la chaîne par rapport à l'expression régulière
+        return input.matches(regex);
+    }
+
+    private void actualiseListRV(String str_selected){
+        RecyclerView recyclerView = requireView().findViewById(R.id.recyclerView_data);
+
+        try (DBHelper db = new DBHelper(getContext())) {
+            ArrayList<InfoModel> list_info = db.getAllInfo(str_selected);
+            ArrayList<FileModel> list_file = db.getAllFiles(str_selected);
+            InfoRecyclerViewAdapter infoRVA = new InfoRecyclerViewAdapter(getContext(), list_info, list_file);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            recyclerView.setAdapter(infoRVA);
+
+            infoRVA.setOnItemClickListener(new InfoRecyclerViewAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(InfoModel item) {
+                    ArrayList<FileModel> list_file = db.getAllFiles(item.getId_i(), "mp3");
+
+                    int r = new Random().nextInt(list_file.size());
+                    AudioPlayer.playAudio(getContext(), list_file.get(r).getAbsolute_path());
+                }
+            });
+
+        }
+    }
+
 
     // Actualise le spinner selon les dossiers présents
     private void actualiseListDataset(){
@@ -336,6 +330,9 @@ public class DataManagementFragment extends Fragment {
 
                 }
             }
+
+            actualiseListRV(directory.getName());
+
         } else {
             System.out.println("No CSV file found in directory.");
         }
@@ -362,74 +359,6 @@ public class DataManagementFragment extends Fragment {
             }
         }
     }
-
-    private void populateDB(String card_set_name){
-        try (DBHelper db = new DBHelper(getContext())) {
-
-            // On récupère le csv dans la bonne langue, ou en.csv par défaut
-            String locale = Locale.getDefault().getLanguage();
-            String path = "data/"+card_set_name+"/";
-            String path_csv = path+locale+".csv";
-
-            File csv = new File(requireContext().getFilesDir(), path_csv);
-            if(!csv.exists()){
-                path_csv = path+"en.csv";
-                csv = new File(requireContext().getFilesDir(), path_csv);
-            }
-
-            // csv contient le bon csv
-            // On va le lire ligne par ligne
-            InputStream in_stream = new FileInputStream(path_csv);
-            try {
-                InputStreamReader input_reader = new InputStreamReader(in_stream);
-                BufferedReader buff_reader = new BufferedReader(input_reader);
-
-                // Skip first line
-                buff_reader.readLine();
-
-                String line;
-                // read every line of the file into the line-variable, on line at the time
-                do {
-                    line = buff_reader.readLine();
-                    if(line != null){
-                        // folder	name	hint	description	img
-                        String[] fields = (line + ", ").split(",");
-                        InfoModel info = new InfoModel(-1, card_set_name, fields[0], fields[1], fields[2], fields[3], fields[4]);
-
-                        // If info already exist, we get it, else we create it
-                        if(db.existInfo(info.getCard_set(), info.getFolder())){
-                            info = db.getInfo(info.getCard_set(), info.getFolder());
-                        }else{
-                            long id = db.addInfo(info);
-                            info.setId_i(id);
-                        }
-
-
-                        File tmp = new File(requireContext().getFilesDir(), "data/"+card_set_name+"/"+info.getFolder());
-
-                        Log.i("Populate DB", tmp.listFiles().toString());
-                    }
-                } while (line != null);
-            } catch (Exception ex) {
-                // print stack trace.
-            } finally {
-                in_stream.close();
-            }
-
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-
-        // Lecture du csv
-
-
-
-        // Si info n'existe pas, le creer et creer une Card qui lui est lié
-    }
-
 
 
 }

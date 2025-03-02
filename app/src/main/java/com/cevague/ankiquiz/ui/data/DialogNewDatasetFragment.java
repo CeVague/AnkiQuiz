@@ -1,4 +1,4 @@
-package com.cevague.ankiquiz;
+package com.cevague.ankiquiz.ui.data;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -6,18 +6,17 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.cevague.ankiquiz.R;
 
 public class DialogNewDatasetFragment extends DialogFragment {
 
@@ -98,15 +97,7 @@ public class DialogNewDatasetFragment extends DialogFragment {
         });
 
         builder.setView(view);
-                /*
-                .setTitle("Entrer un texte")
-                .setPositiveButton("OK", (dialog, which) -> {
-                    if (listener != null) {
-                        listener.onTextEntered(editText.getText().toString());
-                    }
-                })
-                .setNegativeButton("Annuler", (dialog, which) -> dialog.dismiss());
-*/
+
         return builder.create();
     }
 }

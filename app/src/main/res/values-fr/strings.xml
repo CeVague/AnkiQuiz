@@ -9,4 +9,5 @@
     <string name="cancel">Annuler</string>
     <string name="add_data">Ajouter des données</string>
     <string name="create">Créer</string>
+    <string name="rename">Renommer</string>
 </resources>

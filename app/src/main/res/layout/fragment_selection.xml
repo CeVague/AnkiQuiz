@@ -3,32 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.welcome.WelcomeFragment">
+    tools:context=".ui.selection.SelectionFragment">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:orientation="vertical">
 
-        <Space
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView_selection"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"/>
 
-        <Button
-            android:id="@+id/button_play"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/play"
-            android:textSize="20sp"/>
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
 
         <Button
-            android:id="@+id/button_tmp"
+            android:id="@+id/button_play_selection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp"
@@ -37,6 +27,5 @@
             android:gravity="center"
             android:visibility="invisible"
             android:text="@string/play" />
-
     </LinearLayout>
 </FrameLayout>

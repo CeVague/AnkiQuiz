@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -70,6 +72,10 @@ public class InfoRecyclerViewAdapter extends RecyclerView.Adapter<InfoRecyclerVi
 
         // Gérer le clic en passant l'élément cliqué au Fragment
         holder.itemView.setOnClickListener(v -> {
+            // Démarrer l'animation sur l'élément cliqué
+            Animation clickAnimation = AnimationUtils.loadAnimation(v.getContext(), R.anim.clic);
+            v.startAnimation(clickAnimation);
+
             if (listener != null) {
                 listener.onItemClick(info);
             }
