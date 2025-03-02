@@ -25,6 +25,9 @@ public class CardSetRecyclerViewAdapter  extends RecyclerView.Adapter<CardSetRec
     ArrayList<Boolean> list_selection;
     CardSetRecyclerViewAdapter.OnItemClickListener listener;
 
+    public ArrayList<Boolean> getList_selection() {
+        return list_selection;
+    }
 
     public interface OnItemClickListener {
         void onItemClick(ArrayList<Boolean> list_selection);
@@ -62,6 +65,7 @@ public class CardSetRecyclerViewAdapter  extends RecyclerView.Adapter<CardSetRec
         holder.cv.setCardBackgroundColor(ContextCompat.getColor(context, R.color.colorOnPrimaryVariant));
         holder.tv_name.setTextColor(ContextCompat.getColor(context, R.color.colorOnSecondary));
 
+        setActivatedOrNot(holder, list_selection.get(position));
 
         // Gérer le clic en passant l'élément cliqué au Fragment
         holder.itemView.setOnClickListener(v -> {
@@ -71,17 +75,21 @@ public class CardSetRecyclerViewAdapter  extends RecyclerView.Adapter<CardSetRec
 
             list_selection.set(position, !list_selection.get(position));
 
-            if(list_selection.get(position)){
-                holder.cv.setCardBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimaryVariant));
-                holder.tv_name.setTextColor(ContextCompat.getColor(context, R.color.colorOnPrimary));
-            }else{
-                holder.cv.setCardBackgroundColor(ContextCompat.getColor(context, R.color.colorOnPrimaryVariant));
-                holder.tv_name.setTextColor(ContextCompat.getColor(context, R.color.colorOnSecondary));
-            }
+            setActivatedOrNot(holder, list_selection.get(position));
 
             listener.onItemClick(list_selection);
 
         });
+    }
+
+    private void setActivatedOrNot(CardSetRecyclerViewAdapter.MyViewHolder holder, boolean activated){
+        if(activated){
+            holder.cv.setCardBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimaryVariant));
+            holder.tv_name.setTextColor(ContextCompat.getColor(context, R.color.colorOnPrimary));
+        }else{
+            holder.cv.setCardBackgroundColor(ContextCompat.getColor(context, R.color.colorOnPrimaryVariant));
+            holder.tv_name.setTextColor(ContextCompat.getColor(context, R.color.colorOnSecondary));
+        }
     }
 
     @Override

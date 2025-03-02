@@ -1,5 +1,6 @@
 package com.cevague.ankiquiz.ui.selection;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -11,13 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Toast;
 
+import com.cevague.ankiquiz.GameActivity;
 import com.cevague.ankiquiz.R;
 import com.cevague.ankiquiz.sql.DBHelper;
-import com.cevague.ankiquiz.ui.data.InfoRecyclerViewAdapter;
 
 import java.util.ArrayList;
 
@@ -36,14 +35,31 @@ public class SelectionFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerView_selection);
         button_play = view.findViewById(R.id.button_play_selection);
 
-
-
         try (DBHelper db = new DBHelper(getContext())) {
             list_card_set = db.getAllCardSet();
         }
 
-
         adapter = new CardSetRecyclerViewAdapter(getContext(),list_card_set);
+
+
+        button_play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), GameActivity.class);
+
+                ArrayList<Boolean> list_selection = adapter.getList_selection();
+                String cards_set = "";
+                for(int i=0;i<list_card_set.size();i++){
+                    if(list_selection.get(i)){
+                        cards_set += list_card_set.get(i);
+                    }
+                }
+                intent.putExtra("cards_set", cards_set);  // Ajouter des paramètres
+                startActivity(intent);
+            }
+        });
+
+
         adapter.setOnItemClickListener(new CardSetRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(ArrayList<Boolean> list_selection) {
