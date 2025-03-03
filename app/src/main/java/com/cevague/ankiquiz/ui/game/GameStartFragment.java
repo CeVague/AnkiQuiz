@@ -2,6 +2,7 @@ package com.cevague.ankiquiz.ui.game;
 
 import androidx.fragment.app.Fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -30,6 +31,17 @@ public class GameStartFragment extends Fragment {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private CountDownTimer countDown;
 
+    private String cards_set;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            cards_set = getArguments().getString("cards_set");
+            Log.d("Fragment", "Message reçu : " + cards_set);
+        }
+    }
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_game_start, container, false);
@@ -41,7 +53,7 @@ public class GameStartFragment extends Fragment {
 
 
 
-        Future<String> future = executeAsyncTaskWithFuture("Paramètre d'entrée");
+        Future<String> future = executeAsyncTaskWithFuture(getContext(), cards_set);
 
 
 
@@ -84,7 +96,7 @@ public class GameStartFragment extends Fragment {
         return view;
     }
 
-    private Future<String> executeAsyncTaskWithFuture(String input) {
+    private Future<String> executeAsyncTaskWithFuture(Context context, String cards_set) {
         Callable<String> callableTask = () -> {
             // Simuler un travail long
             try {
@@ -92,7 +104,7 @@ public class GameStartFragment extends Fragment {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            return "Résultat de la tâche pour : " + input;
+            return "Résultat de la tâche pour : " + cards_set;
         };
 
         return executorService.submit(callableTask);

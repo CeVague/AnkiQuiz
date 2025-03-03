@@ -51,7 +51,7 @@ public class WelcomeFragment extends Fragment {
                 transaction.replace(R.id.fragment_container, fragment);
 
                 // Ajouter la transaction à la back stack (optionnel)
-                transaction.addToBackStack(null);
+                transaction.addToBackStack("selection");
 
                 // Valider la transaction
                 transaction.commit();

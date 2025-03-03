@@ -21,26 +21,22 @@ public class GameActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_game);
 
-        addFragment(new GameStartFragment(), false);
 
         String cards_set = getIntent().getStringExtra("cards_set");
-    }
 
-    private void addFragment(Fragment fragment, boolean addToBackstack){
-        // Obtenir le FragmentManager
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        getSupportFragmentManager().popBackStack("selection", FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
-        // Commencer une transaction de fragment
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        // Remplacer le contenu du FragmentContainerView par le fragment
-        transaction.replace(R.id.fragment_container, fragment);
 
-        if(addToBackstack){
-            // Ajouter la transaction à la back stack (optionnel)
-            transaction.addToBackStack(null);
-        }
+        GameStartFragment fragment = new GameStartFragment();
 
-        // Valider la transaction
-        transaction.commit();
+        Bundle bundle = new Bundle();
+        bundle.putString("cards_set", cards_set);
+        fragment.setArguments(bundle);
+
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit();
+
     }
 }
