@@ -4,6 +4,8 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,8 +17,18 @@ import android.widget.Toast;
 import com.cevague.ankiquiz.R;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 
 public class GameStartFragment extends Fragment {
+
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private CountDownTimer countDown;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -26,10 +38,17 @@ public class GameStartFragment extends Fragment {
         CircularProgressBar progressBar = view.findViewById(R.id.circularCountDown);
         TextView textViewPB = view.findViewById(R.id.textViewCountDown);
 
+
+
+
+        Future<String> future = executeAsyncTaskWithFuture("Paramètre d'entrée");
+
+
+
         progressBar.setProgress(0);
         progressBar.setProgressMax(1000);
 
-        new CountDownTimer(4000, 10) { // 3 secondes, tick toutes les secondes
+        countDown = new CountDownTimer(4000, 10) { // 3 secondes, tick toutes les secondes
             public void onTick(long millisUntilFinished) {
                 int progress = (int) (millisUntilFinished +1000) % 2000 ;
                 progressBar.setProgress(Math.abs(1000-progress));
@@ -45,12 +64,46 @@ public class GameStartFragment extends Fragment {
             }
 
             public void onFinish() {
-                Toast.makeText(view.getContext(), "Chargement terminé !", Toast.LENGTH_SHORT).show();
                 progressBar.setProgress(0);
+
+                Toast.makeText(view.getContext(), "Chargement terminé !", Toast.LENGTH_SHORT).show();
+                try {
+                    Toast.makeText(view.getContext(), future.get(), Toast.LENGTH_SHORT).show();
+                } catch (ExecutionException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
             }
-        }.start();
+        };
+        countDown.start();
+
+
+
+
 
         return view;
+    }
+
+    private Future<String> executeAsyncTaskWithFuture(String input) {
+        Callable<String> callableTask = () -> {
+            // Simuler un travail long
+            try {
+                Thread.sleep(8000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return "Résultat de la tâche pour : " + input;
+        };
+
+        return executorService.submit(callableTask);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // Arrêter l'executor lorsque l'activité est détruite
+        executorService.shutdown();
+        countDown.cancel();
     }
 
 }
