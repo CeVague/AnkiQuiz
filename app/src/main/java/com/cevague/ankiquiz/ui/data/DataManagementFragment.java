@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cevague.ankiquiz.R;
+import com.cevague.ankiquiz.sql.CardModel;
 import com.cevague.ankiquiz.sql.DBHelper;
 import com.cevague.ankiquiz.sql.FileModel;
 import com.cevague.ankiquiz.sql.InfoModel;
@@ -41,7 +42,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 
@@ -313,6 +319,11 @@ public class DataManagementFragment extends Fragment {
                     InfoModel info = getOrCreateInfo(info_tmp);
                     Log.i("Populate DB", info.toString());
 
+                    // Ajout des cards
+                    CardModel card_tmp = new CardModel(-1, info, null, null, null, true, 0, Calendar.getInstance().getTime());
+                    createCard(card_tmp);
+
+
                     // Check files in their folder
                     File path_card = new File(requireContext().getFilesDir(), "data/"+info.getCard_set()+"/"+info.getFolder());
 
@@ -349,6 +360,15 @@ public class DataManagementFragment extends Fragment {
             }
         }
         return info;
+    }
+
+    private void createCard(CardModel card){
+        try (DBHelper db = new DBHelper(getContext())) {
+            // If card doesn't exist, we create it
+            if (!db.existCard(card)) {
+                long id = db.addCard(card);
+            }
+        }
     }
 
     private void addFileDB(FileModel file){

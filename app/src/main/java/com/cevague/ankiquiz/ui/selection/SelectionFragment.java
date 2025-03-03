@@ -51,7 +51,7 @@ public class SelectionFragment extends Fragment {
                 String cards_set = "";
                 for(int i=0;i<list_card_set.size();i++){
                     if(list_selection.get(i)){
-                        cards_set += list_card_set.get(i);
+                        cards_set += list_card_set.get(i) + ";";
                     }
                 }
                 intent.putExtra("cards_set", cards_set);  // Ajouter des paramètres

@@ -9,6 +9,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
 
 import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
@@ -337,6 +339,75 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
 
         return id;
+    }
+
+
+
+
+    public CardModel getSimpleCard(long id) {
+        CardModel card = null;
+
+        String request =
+                "SELECT * FROM " + TABLE_CARDS
+                        + " WHERE " + COL_ID_CARD + " == " + id;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(request, null);
+        if(cursor.getCount() > 0) {
+            cursor.moveToFirst();
+
+            card = new CardModel();
+
+            card.setId_c(cursor.getLong(0));
+            card.setTo_learn(cursor.getInt(2) == 1);
+            card.setLevel(cursor.getInt(3));
+
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                card.setNext_time(format.parse(cursor.getString(4)));
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        cursor.close();
+        return card;
+    }
+
+
+    public ArrayList<CardModel> getAllCards(String card_set){
+        ArrayList<CardModel> listCards = new ArrayList<CardModel>();
+
+
+        ArrayList<InfoModel> list_infos = getAllInfo(card_set);
+
+        for(InfoModel info : list_infos){
+            CardModel card = getSimpleCard(info.getId_i());
+            card.setInfo(info);
+            card.setAudios(getAllFiles(info.getId_i(), "mp3"));
+            card.setImages(getAllFiles(info.getId_i(), "jpg"));
+            card.setTexts(getAllFiles(info.getId_i(), "txt"));
+
+            listCards.add(card);
+        }
+
+        return listCards;
+    }
+
+
+    public boolean existCard(CardModel card){
+        String request =
+                "SELECT * FROM " + TABLE_CARDS
+                        + " WHERE " + COL_ID_INFO + " == '" + card.getInfo().getId_i() + "'";
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(request, null);
+
+        boolean tmp = cursor.getCount() > 0;
+
+        cursor.close();
+        db.close();
+
+        return tmp;
     }
 
 
