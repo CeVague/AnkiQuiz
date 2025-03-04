@@ -1,6 +1,11 @@
 package com.cevague.ankiquiz.sql;
 
-public class FileModel {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
+public class FileModel implements Parcelable {
 
     private long id_f;
     private long id_i;
@@ -20,6 +25,27 @@ public class FileModel {
         this.absolute_path = absolute_path;
         this.type = type;
     }
+
+    protected FileModel(Parcel in) {
+        id_f = in.readLong();
+        id_i = in.readLong();
+        card_set = in.readString();
+        path = in.readString();
+        absolute_path = in.readString();
+        type = in.readString();
+    }
+
+    public static final Creator<FileModel> CREATOR = new Creator<FileModel>() {
+        @Override
+        public FileModel createFromParcel(Parcel in) {
+            return new FileModel(in);
+        }
+
+        @Override
+        public FileModel[] newArray(int size) {
+            return new FileModel[size];
+        }
+    };
 
     @Override
     public String toString() {
@@ -79,5 +105,20 @@ public class FileModel {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeLong(id_f);
+        dest.writeLong(id_i);
+        dest.writeString(card_set);
+        dest.writeString(path);
+        dest.writeString(absolute_path);
+        dest.writeString(type);
     }
 }

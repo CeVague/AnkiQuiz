@@ -1,6 +1,11 @@
 package com.cevague.ankiquiz.sql;
 
-public class InfoModel {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
+public class InfoModel implements Parcelable {
 
     private long id_i;
     private String card_set;
@@ -23,6 +28,18 @@ public class InfoModel {
         this.description = description;
         this.img_path = img_path;
     }
+
+    public static final Creator<InfoModel> CREATOR = new Creator<InfoModel>() {
+        @Override
+        public InfoModel createFromParcel(Parcel in) {
+            return new InfoModel(in);
+        }
+
+        @Override
+        public InfoModel[] newArray(int size) {
+            return new InfoModel[size];
+        }
+    };
 
     @Override
     public String toString() {
@@ -107,4 +124,30 @@ public class InfoModel {
     }
 
 
+
+    protected InfoModel(Parcel in) {
+        this.id_i = in.readLong();;
+        this.card_set = in.readString();
+        this.folder = in.readString();
+        this.name = in.readString();
+        this.hint = in.readString();
+        this.description = in.readString();
+        this.img_path = in.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeLong(id_i);
+        dest.writeString(card_set);
+        dest.writeString(folder);
+        dest.writeString(name);
+        dest.writeString(hint);
+        dest.writeString(description);
+        dest.writeString(img_path);
+    }
 }

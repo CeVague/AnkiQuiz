@@ -320,7 +320,7 @@ public class DataManagementFragment extends Fragment {
                     Log.i("Populate DB", info.toString());
 
                     // Ajout des cards
-                    CardModel card_tmp = new CardModel(-1, info, null, null, null, true, 0, Calendar.getInstance().getTime());
+                    CardModel card_tmp = new CardModel(info, 0, Calendar.getInstance().getTime());
                     createCard(card_tmp);
 
 
