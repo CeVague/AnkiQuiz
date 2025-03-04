@@ -1,20 +1,16 @@
 package com.cevague.ankiquiz.ui.game;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cevague.ankiquiz.R;
 import com.cevague.ankiquiz.sql.CardModel;
@@ -29,26 +25,26 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 
-public class GameStartFragment extends Fragment {
+public class GameLoadingFragment extends Fragment {
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler handler = new Handler(Looper.getMainLooper());
     private CountDownTimer countDown;
 
-    private String cards_set;
+    private String cardSetString;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            cards_set = getArguments().getString("cards_set");
-            Log.d("Fragment", "Message reçu : " + cards_set);
+            cardSetString = getArguments().getString("cardSetString");
         }
+        System.out.println(cardSetString);
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view =  inflater.inflate(R.layout.fragment_game_start, container, false);
+        View view =  inflater.inflate(R.layout.fragment_game_loading, container, false);
 
 
         CircularProgressBar progressBar = view.findViewById(R.id.circularCountDown);
@@ -57,7 +53,7 @@ public class GameStartFragment extends Fragment {
 
 
 
-        Future<ArrayList<CardModel>> future = executeAsyncTaskWithFuture(getContext(), cards_set);
+        Future<ArrayList<CardModel>> future = executeAsyncTaskWithFuture(getContext(), cardSetString);
 
 
 
@@ -82,7 +78,7 @@ public class GameStartFragment extends Fragment {
             public void onFinish() {
                 progressBar.setProgress(0);
                 try {
-                    MediaToNameFragment fragment = MediaToNameFragment.newInstance(future.get());
+                    GameFragment fragment = GameFragment.newInstance(future.get());
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragment_container, fragment)
                             .commit();
@@ -101,8 +97,8 @@ public class GameStartFragment extends Fragment {
         return view;
     }
 
-    public static MediaToNameFragment newInstance(ArrayList<CardModel> liste) {
-        MediaToNameFragment fragment = new MediaToNameFragment();
+    public static GameFragment newInstance(ArrayList<CardModel> liste) {
+        GameFragment fragment = new GameFragment();
         Bundle args = new Bundle();
         args.putParcelableArrayList("card_list", liste);
         fragment.setArguments(args);

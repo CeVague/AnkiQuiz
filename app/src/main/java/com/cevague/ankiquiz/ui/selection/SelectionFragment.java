@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 public class SelectionFragment extends Fragment {
     RecyclerView recyclerView;
-    Button button_play;
+    Button buttonPlay;
     CardSetRecyclerViewAdapter adapter;
     ArrayList<String> list_card_set;
 
@@ -33,7 +33,7 @@ public class SelectionFragment extends Fragment {
         View view =  inflater.inflate(R.layout.fragment_selection, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerView_selection);
-        button_play = view.findViewById(R.id.button_play_selection);
+        buttonPlay = view.findViewById(R.id.button_play_selection);
 
         try (DBHelper db = new DBHelper(getContext())) {
             list_card_set = db.getAllCardSet();
@@ -42,19 +42,19 @@ public class SelectionFragment extends Fragment {
         adapter = new CardSetRecyclerViewAdapter(getContext(),list_card_set);
 
 
-        button_play.setOnClickListener(new View.OnClickListener() {
+        buttonPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), GameActivity.class);
 
                 ArrayList<Boolean> list_selection = adapter.getList_selection();
-                String cards_set = "";
+                String cardSetString = "";
                 for(int i=0;i<list_card_set.size();i++){
                     if(list_selection.get(i)){
-                        cards_set += list_card_set.get(i) + ";";
+                        cardSetString += list_card_set.get(i) + ";";
                     }
                 }
-                intent.putExtra("cards_set", cards_set);  // Ajouter des paramètres
+                intent.putExtra("cardSetString", cardSetString);  // Ajouter des paramètres
                 startActivity(intent);
             }
         });
@@ -69,8 +69,8 @@ public class SelectionFragment extends Fragment {
                 Animation slideUpAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
                 Animation slideDownAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_down);
 
-                if(list_selection.contains(true) && (button_play.getVisibility() == View.INVISIBLE)){
-                    button_play.startAnimation(slideUpAnimation);
+                if(list_selection.contains(true) && (buttonPlay.getVisibility() == View.INVISIBLE)){
+                    buttonPlay.startAnimation(slideUpAnimation);
 
                     // Rendre le bouton invisible après l'animation
                     slideUpAnimation.setAnimationListener(new Animation.AnimationListener() {
@@ -80,7 +80,7 @@ public class SelectionFragment extends Fragment {
 
                         @Override
                         public void onAnimationStart(Animation animation) {
-                            button_play.setVisibility(View.VISIBLE);
+                            buttonPlay.setVisibility(View.VISIBLE);
 
                         }
 
@@ -88,13 +88,13 @@ public class SelectionFragment extends Fragment {
                         public void onAnimationRepeat(Animation animation) {}
                     });
                 }else if (!list_selection.contains(true)){
-                    button_play.startAnimation(slideDownAnimation);
+                    buttonPlay.startAnimation(slideDownAnimation);
 
                     // Rendre le bouton invisible après l'animation
                     slideDownAnimation.setAnimationListener(new Animation.AnimationListener() {
                         @Override
                         public void onAnimationEnd(Animation animation) {
-                            button_play.setVisibility(View.INVISIBLE);
+                            buttonPlay.setVisibility(View.INVISIBLE);
                         }
 
                         @Override

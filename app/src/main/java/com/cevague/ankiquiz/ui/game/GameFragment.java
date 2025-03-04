@@ -1,14 +1,13 @@
 package com.cevague.ankiquiz.ui.game;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+
+import androidx.fragment.app.Fragment;
 
 import com.cevague.ankiquiz.R;
 import com.cevague.ankiquiz.sql.CardModel;
@@ -19,10 +18,10 @@ import java.util.Random;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link MediaToNameFragment#newInstance} factory method to
+ * Use the {@link GameFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MediaToNameFragment extends Fragment {
+public class GameFragment extends Fragment {
     private static final String ARG_LISTE_CARTES = "liste_cartes";
     private static final int ID_GAME = 0;
 
@@ -31,8 +30,8 @@ public class MediaToNameFragment extends Fragment {
 
     private ArrayList<CardModel> cardList;
 
-    public static MediaToNameFragment newInstance(ArrayList<CardModel> cardList) {
-        MediaToNameFragment fragment = new MediaToNameFragment();
+    public static GameFragment newInstance(ArrayList<CardModel> cardList) {
+        GameFragment fragment = new GameFragment();
         Bundle args = new Bundle();
         args.putParcelableArrayList(ARG_LISTE_CARTES, cardList);
         fragment.setArguments(args);
@@ -51,7 +50,7 @@ public class MediaToNameFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_media_to_name, container, false);
+        View view = inflater.inflate(R.layout.fragment_game, container, false);
 
         imageButton = view.findViewById(R.id.imageButton_M2N);
 

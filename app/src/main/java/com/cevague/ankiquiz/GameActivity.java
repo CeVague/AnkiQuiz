@@ -4,14 +4,9 @@ import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
-import com.cevague.ankiquiz.ui.game.GameStartFragment;
+import com.cevague.ankiquiz.ui.game.GameLoadingFragment;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -22,15 +17,15 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game);
 
 
-        String cards_set = getIntent().getStringExtra("cards_set");
+        String cardSetString = getIntent().getStringExtra("cardSetString");
 
         getSupportFragmentManager().popBackStack("selection", FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
 
-        GameStartFragment fragment = new GameStartFragment();
+        GameLoadingFragment fragment = new GameLoadingFragment();
 
         Bundle bundle = new Bundle();
-        bundle.putString("cards_set", cards_set);
+        bundle.putString("cardSetString", cardSetString);
         fragment.setArguments(bundle);
 
 
