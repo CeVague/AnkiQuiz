@@ -1,19 +1,26 @@
 package com.cevague.ankiquiz.ui.game;
 
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
+import com.cevague.ankiquiz.GameQCMFragment;
 import com.cevague.ankiquiz.R;
 import com.cevague.ankiquiz.sql.CardModel;
-import com.cevague.ankiquiz.utils.AudioPlayer;
+import com.cevague.ankiquiz.sql.FileModel;
+import com.cevague.ankiquiz.sql.InfoModel;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -23,12 +30,15 @@ import java.util.Random;
  */
 public class GameFragment extends Fragment {
     private static final String ARG_LISTE_CARTES = "liste_cartes";
-    private static final int ID_GAME = 0;
-
-    ImageButton imageButton;
-    Button[] buttons;
+    private static final String ARG_QUESTION = "liste_cartes";
+    private static final String ARG_ANSWERS = "liste_cartes";
+    private static final String ARG_SOLUTION = "liste_cartes";
+    private static final int NB_TYPE = 1;
 
     private ArrayList<CardModel> cardList;
+    private List<Pair<Integer, CardModel>> choiceList = new ArrayList<>();
+    private Dictionary<CardModel, Boolean> resultDict = new Hashtable<>();
+    private int idQuestion = 0;
 
     public static GameFragment newInstance(ArrayList<CardModel> cardList) {
         GameFragment fragment = new GameFragment();
@@ -41,8 +51,20 @@ public class GameFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
             cardList = getArguments().getParcelableArrayList(ARG_LISTE_CARTES);
+
+            for(CardModel card : cardList){
+                for(int i = 0; i < NB_TYPE; i++){
+                    choiceList.add(new Pair<>(i, card));
+                }
+                resultDict.put(card, Boolean.TRUE);
+            }
+
+            Collections.shuffle(choiceList);
+        }else{
+            throw new RuntimeException("No DataModel list gave in argument");
         }
     }
 
@@ -52,55 +74,89 @@ public class GameFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_game, container, false);
 
-        imageButton = view.findViewById(R.id.imageButton_M2N);
 
-        buttons = new Button[]{
-                view.findViewById(R.id.button_M2N_1),
-                view.findViewById(R.id.button_M2N_2),
-                view.findViewById(R.id.button_M2N_3),
-                view.findViewById(R.id.button_M2N_4)
-        };
+        System.out.println(idQuestion);
 
-        CardModel card = findCard();
-        if(card != null){
-            int rnd_sound = new Random().nextInt(card.getAudios().size());
-            int rnd_answer = new Random().nextInt(4);
+        // Génération de la question et de ses réponses
 
+        // Get the ieme question of the set
+        Pair<Integer, CardModel> questionPair = choiceList.get(idQuestion);
+        // Get all the answer card possible (shuffle)
+        ArrayList<CardModel> answerList = getAnswerList(cardList, questionPair.second);
 
-            imageButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AudioPlayer.playAudio(getContext(), card.getAudios().get(rnd_sound).getAbsolute_path());
-                }
-            });
+        FileModel question;
+        FileModel answer;
+        ArrayList<FileModel> answerChoices;
 
-            for(int i=0;i<4;i++){
-                if(i == rnd_answer){
-                    buttons[i].setText(card.getInfo().getName());
-                }else{
-                    int rnd_tmp = new Random().nextInt(cardList.size()-1);
-                    CardModel card_tmp = cardList.get(rnd_tmp);
-                    if(card_tmp == card){
-                        card_tmp = cardList.get(cardList.size()-1);
-                    }
-                    buttons[i].setText(card_tmp.getInfo().getName());
-                }
-            }
+        switch (questionPair.first){
+            case 0:
+                question = getRandomElement(questionPair.second.getAudios());
+                answer = stringToFile(questionPair.second.getInfo().getName());
+                answerChoices = getAnswerChoices(answerList, "name", 4);
+                break;
+            default:
+                question = stringToFile(questionPair.second.getInfo().getName());
+                answer = stringToFile(questionPair.second.getInfo().getName());
+                answerChoices = getAnswerChoices(answerList, "name", 4);
+                break;
         }
+
+        GameQCMFragment fragment = new GameQCMFragment();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("question", question);
+        bundle.putParcelable("answer", answer);
+        bundle.putParcelableArrayList("answerChoices", answerChoices);
+        fragment.setArguments(bundle);
+
+        // Ajouter le fragment enfant
+        if (savedInstanceState == null) {
+            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, fragment);
+            transaction.addToBackStack(null); // Permet de revenir au fragment précédent en appuyant sur retour
+            transaction.commit();
+        }
+
+
+
+        idQuestion++;
 
         return view;
     }
 
-    private CardModel findCard(){
-        ArrayList<CardModel> tmp_list = new ArrayList<CardModel>(cardList);
+    private FileModel stringToFile(String txt){
+        return new FileModel(-1, -1, null, txt, txt, "txt");
+    }
 
-        for(CardModel card : tmp_list){
-            if(!card.isTo_learn() || !card.getGame_type(ID_GAME)){
-                tmp_list.remove(card);
+    private ArrayList<CardModel> getAnswerList(ArrayList<CardModel> cardList, CardModel question){
+        ArrayList<CardModel> tmp = new ArrayList<CardModel>(cardList);
+        tmp.remove(question);
+        Collections.shuffle(tmp);
+        return tmp;
+    }
+
+    private ArrayList<FileModel> getAnswerChoices(ArrayList<CardModel> cardList, String type, int nb){
+        ArrayList<FileModel> answerChoices = new ArrayList<>();
+
+        for(int i=0;i<nb;i++){
+            FileModel tmp;
+            if(type.equals("mp3")){
+                tmp = getRandomElement(cardList.get(i).getAudios());
+            }else if(type.equals("jpg")){
+                tmp = getRandomElement(cardList.get(i).getImages());
+            }else if(type.equals("txt")){
+                tmp = getRandomElement(cardList.get(i).getTexts());
             }else{
-                return card;
+                tmp = stringToFile(cardList.get(i).getInfo().getName());
             }
+            answerChoices.add(tmp);
         }
-        return null;
+
+
+        return answerChoices;
+    }
+
+    private <T> T getRandomElement(ArrayList<T> list){
+        int i = new Random().nextInt(list.size());
+        return list.get(i);
     }
 }
