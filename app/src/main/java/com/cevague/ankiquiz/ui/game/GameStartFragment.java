@@ -1,6 +1,7 @@
 package com.cevague.ankiquiz.ui.game;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -16,8 +17,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cevague.ankiquiz.R;
+import com.cevague.ankiquiz.sql.CardModel;
+import com.cevague.ankiquiz.sql.DBHelper;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -53,7 +57,7 @@ public class GameStartFragment extends Fragment {
 
 
 
-        Future<String> future = executeAsyncTaskWithFuture(getContext(), cards_set);
+        Future<ArrayList<CardModel>> future = executeAsyncTaskWithFuture(getContext(), cards_set);
 
 
 
@@ -77,10 +81,11 @@ public class GameStartFragment extends Fragment {
 
             public void onFinish() {
                 progressBar.setProgress(0);
-
-                Toast.makeText(view.getContext(), "Chargement terminé !", Toast.LENGTH_SHORT).show();
                 try {
-                    Toast.makeText(view.getContext(), future.get(), Toast.LENGTH_SHORT).show();
+                    MediaToNameFragment fragment = MediaToNameFragment.newInstance(future.get());
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, fragment)
+                            .commit();
                 } catch (ExecutionException | InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -96,15 +101,31 @@ public class GameStartFragment extends Fragment {
         return view;
     }
 
-    private Future<String> executeAsyncTaskWithFuture(Context context, String cards_set) {
-        Callable<String> callableTask = () -> {
-            // Simuler un travail long
-            try {
-                Thread.sleep(8000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    public static MediaToNameFragment newInstance(ArrayList<CardModel> liste) {
+        MediaToNameFragment fragment = new MediaToNameFragment();
+        Bundle args = new Bundle();
+        args.putParcelableArrayList("card_list", liste);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    private Future<ArrayList<CardModel>> executeAsyncTaskWithFuture(Context context, String cards_set) {
+        Callable<ArrayList<CardModel>> callableTask = () -> {
+
+            ArrayList<CardModel> set = new ArrayList<CardModel>();
+            try (DBHelper db = new DBHelper(context)) {
+                for(String card_set : cards_set.split(";")){
+                    set.addAll(db.getAllCards(card_set));
+                }
             }
-            return "Résultat de la tâche pour : " + cards_set;
+
+            set.removeIf(cm -> !cm.isTo_learn());
+
+            for(int i=0;i<set.size();i++){
+                set.get(i).setGame_type(new boolean[]{true, true, true, true, true, true, true, true, true});
+            }
+
+            return set;
         };
 
         return executorService.submit(callableTask);
