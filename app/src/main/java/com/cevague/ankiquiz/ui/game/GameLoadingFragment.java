@@ -60,7 +60,7 @@ public class GameLoadingFragment extends Fragment {
         progressBar.setProgress(0);
         progressBar.setProgressMax(1000);
 
-        countDown = new CountDownTimer(4000, 10) { // 3 secondes, tick toutes les secondes
+        countDown = new CountDownTimer(1000, 10) { // 3 secondes, tick toutes les secondes
             public void onTick(long millisUntilFinished) {
                 int progress = (int) (millisUntilFinished +1000) % 2000 ;
                 progressBar.setProgress(Math.abs(1000-progress));

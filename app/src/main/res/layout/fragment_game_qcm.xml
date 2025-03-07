@@ -3,12 +3,145 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".GameQCMFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:orientation="vertical"
+        android:weightSum="2">
 
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <ImageView
+                android:layout_gravity="center"
+                android:id="@+id/imageViewQCMQuestion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:src="@tools:sample/avatars" />
+
+            <TextView
+                android:layout_gravity="center"
+                android:id="@+id/textViewQCMQuestion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TextView" />
+
+            <ImageButton
+                android:layout_gravity="center"
+                android:id="@+id/buttonQCMQuestion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_lock_silent_mode_off" />
+        </FrameLayout>
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:columnCount="2"
+            android:rowCount="2"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+        >
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_gravity="center"
+                android:layout_rowWeight="1"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/textButtonQCMAnswer1"
+                    android:maxWidth="150dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mon Texte qui parle de choses et d'autres bien plus que tout autre gens"/>
+
+                <ImageButton
+                    android:id="@+id/imageButtonQCMAnswer1"
+                    android:maxWidth="150dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_launcher_foreground"
+                    android:visibility="gone"/>
+            </FrameLayout>
+
+
+            <FrameLayout
+                android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_width="wrap_content"
+                android:layout_gravity="center"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/textButtonQCMAnswer2"
+                    android:maxWidth="150dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mon Texte"
+                    android:visibility="gone"/>
+
+                <ImageButton
+                    android:id="@+id/imageButtonQCMAnswer2"
+                    android:maxWidth="150dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_launcher_foreground"/>
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_gravity="center"
+                android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/textButtonQCMAnswer3"
+                    android:maxWidth="150dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mon Texte"/>
+
+                <ImageButton
+                    android:id="@+id/imageButtonQCMAnswer3"
+                    android:maxWidth="150dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_launcher_foreground"
+                    android:visibility="gone"/>
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_gravity="center"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/textButtonQCMAnswer4"
+                    android:maxWidth="150dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mon Texte"/>
+
+                <ImageButton
+                    android:id="@+id/imageButtonQCMAnswer4"
+                    android:maxWidth="150dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_launcher_foreground"
+                    android:visibility="gone"/>
+            </FrameLayout>
+
+        </GridLayout>
+    </LinearLayout>
 </FrameLayout>

@@ -10,4 +10,6 @@
     <string name="add_data">Ajouter des données</string>
     <string name="create">Créer</string>
     <string name="rename">Renommer</string>
+    <string name="next">Suivant</string>
+    <string name="validate">Valider</string>
 </resources>

@@ -1,11 +1,20 @@
 package com.cevague.ankiquiz.ui.game;
 
+import static android.view.View.GONE;
+
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -14,6 +23,7 @@ import com.cevague.ankiquiz.R;
 import com.cevague.ankiquiz.sql.CardModel;
 import com.cevague.ankiquiz.sql.FileModel;
 import com.cevague.ankiquiz.sql.InfoModel;
+import com.cevague.ankiquiz.utils.AudioPlayer;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -30,15 +40,14 @@ import java.util.Random;
  */
 public class GameFragment extends Fragment {
     private static final String ARG_LISTE_CARTES = "liste_cartes";
-    private static final String ARG_QUESTION = "liste_cartes";
-    private static final String ARG_ANSWERS = "liste_cartes";
-    private static final String ARG_SOLUTION = "liste_cartes";
-    private static final int NB_TYPE = 1;
+    private static final int NB_TYPE = 3;
 
     private ArrayList<CardModel> cardList;
     private List<Pair<Integer, CardModel>> choiceList = new ArrayList<>();
     private Dictionary<CardModel, Boolean> resultDict = new Hashtable<>();
     private int idQuestion = 0;
+
+    private Button btnNext;
 
     public static GameFragment newInstance(ArrayList<CardModel> cardList) {
         GameFragment fragment = new GameFragment();
@@ -74,54 +83,44 @@ public class GameFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_game, container, false);
 
+        btnNext = view.findViewById(R.id.button_next_game);
 
-        System.out.println(idQuestion);
+        idQuestion = 0;
 
-        // Génération de la question et de ses réponses
-
-        // Get the ieme question of the set
-        Pair<Integer, CardModel> questionPair = choiceList.get(idQuestion);
-        // Get all the answer card possible (shuffle)
-        ArrayList<CardModel> answerList = getAnswerList(cardList, questionPair.second);
-
-        FileModel question;
-        FileModel answer;
-        ArrayList<FileModel> answerChoices;
-
-        switch (questionPair.first){
-            case 0:
-                question = getRandomElement(questionPair.second.getAudios());
-                answer = stringToFile(questionPair.second.getInfo().getName());
-                answerChoices = getAnswerChoices(answerList, "name", 4);
-                break;
-            default:
-                question = stringToFile(questionPair.second.getInfo().getName());
-                answer = stringToFile(questionPair.second.getInfo().getName());
-                answerChoices = getAnswerChoices(answerList, "name", 4);
-                break;
-        }
-
-        GameQCMFragment fragment = new GameQCMFragment();
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("question", question);
-        bundle.putParcelable("answer", answer);
-        bundle.putParcelableArrayList("answerChoices", answerChoices);
-        fragment.setArguments(bundle);
-
-        // Ajouter le fragment enfant
-        if (savedInstanceState == null) {
-            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_container, fragment);
-            transaction.addToBackStack(null); // Permet de revenir au fragment précédent en appuyant sur retour
-            transaction.commit();
-        }
-
-
-
-        idQuestion++;
+        nextQuestion();
 
         return view;
     }
+
+    private void nextQuestion(){
+        System.out.println(idQuestion);
+        GameQCMFragment fragment = new GameQCMFragment();
+        Bundle bundle = getNextBundle();
+        fragment.setArguments(bundle);
+
+        fragment.setOnAnswerListener(new GameQCMFragment.OnAnswerListener() {
+            @Override
+            public void onAnswer(boolean win, boolean played) {
+                if(played){
+                    CardModel card = choiceList.get(idQuestion).second;
+                    boolean old = resultDict.get(card);
+                    resultDict.put(card, old && win);
+
+                    setButtonNext();
+                }else{
+                    idQuestion++;
+                    nextQuestion();
+                }
+            }
+        });
+
+        // Ajouter le fragment enfant
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container_game, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
 
     private FileModel stringToFile(String txt){
         return new FileModel(-1, -1, null, txt, txt, "txt");
@@ -156,7 +155,91 @@ public class GameFragment extends Fragment {
     }
 
     private <T> T getRandomElement(ArrayList<T> list){
+        if(list == null || list.isEmpty()){
+            return null;
+        }
         int i = new Random().nextInt(list.size());
         return list.get(i);
+    }
+
+    private Bundle getNextBundle(){
+        // Génération de la question et de ses réponses
+
+        // Get the ieme question of the set
+        Pair<Integer, CardModel> questionPair = choiceList.get(idQuestion);
+        // Get all the answer card possible (shuffle)
+        ArrayList<CardModel> answerList = getAnswerList(cardList, questionPair.second);
+
+        FileModel question;
+        FileModel answer;
+        ArrayList<FileModel> answerChoices;
+
+        switch (questionPair.first){
+            case 0:
+                question = getRandomElement(questionPair.second.getAudios());
+                answer = stringToFile(questionPair.second.getInfo().getName());
+                answerChoices = getAnswerChoices(answerList, "name", 4);
+                break;
+            case 1:
+                question = getRandomElement(questionPair.second.getImages());
+                answer = stringToFile(questionPair.second.getInfo().getName());
+                answerChoices = getAnswerChoices(answerList, "name", 4);
+                break;
+            case 2:
+                question = getRandomElement(questionPair.second.getTexts());
+                answer = stringToFile(questionPair.second.getInfo().getName());
+                answerChoices = getAnswerChoices(answerList, "name", 4);
+                break;
+            default:
+                question = stringToFile(questionPair.second.getInfo().getName());
+                answer = stringToFile(questionPair.second.getInfo().getName());
+                answerChoices = getAnswerChoices(answerList, "name", 4);
+                break;
+        }
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("question", question);
+        bundle.putParcelable("answer", answer);
+        bundle.putParcelableArrayList("answerChoices", answerChoices);
+
+        return bundle;
+    }
+
+    private void setButtonNext(){
+        Animation slideUpAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
+        btnNext.startAnimation(slideUpAnimation);
+
+        // Rendre le bouton invisible après l'animation
+        slideUpAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationEnd(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationStart(Animation animation) {
+                btnNext.setVisibility(View.VISIBLE);
+
+            }
+        });
+
+        btnNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                idQuestion++;
+                btnNext.setVisibility(GONE);
+                AudioPlayer.stopAudio();
+
+                if(idQuestion == choiceList.size()){
+
+                }else{
+                    nextQuestion();
+                }
+            }
+        });
     }
 }

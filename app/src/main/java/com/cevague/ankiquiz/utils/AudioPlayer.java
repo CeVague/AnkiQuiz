@@ -21,7 +21,6 @@ public class AudioPlayer {
 
             // Afficher un Toast et libérer le MediaPlayer quand la lecture est terminée
             mediaPlayer.setOnCompletionListener(mp -> {
-                Toast.makeText(context, "Lecture terminée", Toast.LENGTH_SHORT).show();
                 stopAudio();
             });
 

@@ -1,8 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Le FrameLayout prend toute la place disponible -->
+    <FrameLayout
+        android:id="@+id/fragment_container_game"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+    android:layout_weight="1" >
+
+        <ImageButton
+            android:id="@+id/btnClose"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:src="@drawable/close_icon"
+            app:tint="@color/colorAccent"
+            android:alpha="0.7"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="10dp"/>
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/button_next_game"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:background="@color/colorPrimary"
+        android:textColor="@color/colorOnPrimary"
+        android:gravity="center"
+        android:visibility="invisible"
+        android:text="@string/next" />
+</LinearLayout>

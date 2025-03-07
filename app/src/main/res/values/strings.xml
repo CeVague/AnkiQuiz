@@ -13,5 +13,7 @@
     <string name="add_data">Add some data</string>
     <string name="create">Create</string>
     <string name="rename">Rename</string>
+    <string name="next">Next</string>
+    <string name="validate">Validate</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>
