@@ -3,6 +3,8 @@ package com.cevague.ankiquiz.ui.game;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -18,6 +20,8 @@ import java.util.Collections;
 public class GameEndFragment extends Fragment {
 
     ArrayList<CardModel> resultList;
+    CardRecyclerViewAdapter adapter;
+    RecyclerView recyclerView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,6 +38,14 @@ public class GameEndFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_game_end, container, false);
+
+        recyclerView = view.findViewById(R.id.recyclerView_end_game);
+
+        adapter = new CardRecyclerViewAdapter(getContext(), resultList);
+
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter);
 
         return view;
     }

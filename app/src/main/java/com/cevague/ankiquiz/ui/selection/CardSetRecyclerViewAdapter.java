@@ -19,7 +19,7 @@ import com.cevague.ankiquiz.R;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class CardSetRecyclerViewAdapter  extends RecyclerView.Adapter<CardSetRecyclerViewAdapter.MyViewHolder> {
+public class CardSetRecyclerViewAdapter extends RecyclerView.Adapter<CardSetRecyclerViewAdapter.MyViewHolder> {
     Context context;
     ArrayList<String> list_card_set;
     ArrayList<Boolean> list_selection;

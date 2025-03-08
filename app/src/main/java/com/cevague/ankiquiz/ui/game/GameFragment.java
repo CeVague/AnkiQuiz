@@ -105,6 +105,12 @@ public class GameFragment extends Fragment {
 
         GameQCMFragment fragment = new GameQCMFragment();
         Bundle bundle = getNextBundle();
+
+        if(bundle == null){
+            startEndGame();
+            return ;
+        }
+
         fragment.setArguments(bundle);
 
         fragment.setOnAnswerListener(new GameQCMFragment.OnAnswerListener() {
@@ -172,6 +178,10 @@ public class GameFragment extends Fragment {
     }
 
     private Bundle getNextBundle(){
+        if(idQuestion >= choiceList.size()){
+            return null;
+        }
+
         // Génération de la question et de ses réponses
 
         // Get the ieme question of the set
@@ -243,49 +253,53 @@ public class GameFragment extends Fragment {
                 btnNext.setVisibility(INVISIBLE);
                 AudioPlayer.stopAudio();
 
-                if(idQuestion == choiceList.size()){
-                    ArrayList<CardModel> resultList = new ArrayList<>();
-                    for(CardModel card : cardList){
-                        Calendar c = Calendar.getInstance();
-                        c.setTime(new Date());
-                        if(resultDict.get(card)){
-                            int level = card.getLevel() + 1;
-                            if(level == 1){
-                                c.add(Calendar.DATE, 1);
-                            } else if (level == 2) {
-                                c.add(Calendar.DATE, 2);
-                            } else if (level == 3) {
-                                c.add(Calendar.DATE, 4);
-                            } else if (level == 4) {
-                                c.add(Calendar.DATE, 7);
-                            } else if (level == 5) {
-                                c.add(Calendar.DATE, 14);
-                            } else {
-                                c.add(Calendar.DATE, 28);
-                            }
-                            card.setNext_time(c.getTime());
-                            card.setLevel(level);
-                        }else{
-                            card.setNext_time(c.getTime());
-                            card.setLevel(0);
-                        }
-                        resultList.add(card);
-                    }
-
-                    GameEndFragment fragment = new GameEndFragment();
-
-                    Bundle bundle = new Bundle();
-                    bundle.putParcelableArrayList("resultList", resultList);
-                    fragment.setArguments(bundle);
-
-                    FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-                    transaction.replace(R.id.fragment_container_game, fragment);
-                    transaction.addToBackStack(null);
-                    transaction.commit();
+                if(idQuestion >= choiceList.size()){
+                    Log.i("Boutton next", "Plus aucune question");
+                    startEndGame();
                 }else{
                     nextQuestion();
                 }
             }
         });
+    }
+
+    private void startEndGame(){
+        ArrayList<CardModel> resultList = new ArrayList<>();
+        for(CardModel card : cardList){
+            Calendar c = Calendar.getInstance();
+            c.setTime(new Date());
+            if(resultDict.get(card)){
+                int level = card.getLevel() + 1;
+                if(level == 1){
+                    c.add(Calendar.DATE, 1);
+                } else if (level == 2) {
+                    c.add(Calendar.DATE, 2);
+                } else if (level == 3) {
+                    c.add(Calendar.DATE, 4);
+                } else if (level == 4) {
+                    c.add(Calendar.DATE, 7);
+                } else if (level == 5) {
+                    c.add(Calendar.DATE, 14);
+                } else {
+                    c.add(Calendar.DATE, 28);
+                }
+                card.setNext_time(c.getTime());
+                card.setLevel(level);
+            }else{
+                card.setNext_time(c.getTime());
+                card.setLevel(0);
+            }
+            resultList.add(card);
+        }
+
+        GameEndFragment fragment = new GameEndFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("resultList", resultList);
+        fragment.setArguments(bundle);
+
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.commit();
     }
 }

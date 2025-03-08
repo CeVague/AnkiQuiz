@@ -57,7 +57,6 @@ public class SelectionFragment extends Fragment {
                     }
                 }
                 intent.putExtra("cardSetString", cardSetString);  // Ajouter des paramètres
-                startActivity(intent);
 
                 if (getActivity() != null) {
                     // Obtenez le FragmentManager
@@ -65,6 +64,8 @@ public class SelectionFragment extends Fragment {
                     // Retirez le fragment supérieur de la pile
                     fragmentManager.popBackStack();
                 }
+
+                startActivity(intent);
             }
         });
 
