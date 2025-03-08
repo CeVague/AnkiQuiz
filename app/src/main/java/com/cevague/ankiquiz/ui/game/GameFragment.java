@@ -1,8 +1,7 @@
 package com.cevague.ankiquiz.ui.game;
 
-import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
@@ -12,22 +11,20 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageButton;
 
-import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.cevague.ankiquiz.GameQCMFragment;
 import com.cevague.ankiquiz.R;
 import com.cevague.ankiquiz.sql.CardModel;
 import com.cevague.ankiquiz.sql.FileModel;
-import com.cevague.ankiquiz.sql.InfoModel;
 import com.cevague.ankiquiz.utils.AudioPlayer;
 
-import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -48,6 +45,7 @@ public class GameFragment extends Fragment {
     private int idQuestion = 0;
 
     private Button btnNext;
+    private ImageButton btnClose;
 
     public static GameFragment newInstance(ArrayList<CardModel> cardList) {
         GameFragment fragment = new GameFragment();
@@ -84,6 +82,16 @@ public class GameFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_game, container, false);
 
         btnNext = view.findViewById(R.id.button_next_game);
+        btnClose = view.findViewById(R.id.button_close);
+
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getActivity() != null) {
+                    getActivity().finish();
+                }
+            }
+        });
 
         idQuestion = 0;
 
@@ -94,6 +102,7 @@ public class GameFragment extends Fragment {
 
     private void nextQuestion(){
         System.out.println(idQuestion);
+
         GameQCMFragment fragment = new GameQCMFragment();
         Bundle bundle = getNextBundle();
         fragment.setArguments(bundle);
@@ -231,11 +240,48 @@ public class GameFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 idQuestion++;
-                btnNext.setVisibility(GONE);
+                btnNext.setVisibility(INVISIBLE);
                 AudioPlayer.stopAudio();
 
                 if(idQuestion == choiceList.size()){
+                    ArrayList<CardModel> resultList = new ArrayList<>();
+                    for(CardModel card : cardList){
+                        Calendar c = Calendar.getInstance();
+                        c.setTime(new Date());
+                        if(resultDict.get(card)){
+                            int level = card.getLevel() + 1;
+                            if(level == 1){
+                                c.add(Calendar.DATE, 1);
+                            } else if (level == 2) {
+                                c.add(Calendar.DATE, 2);
+                            } else if (level == 3) {
+                                c.add(Calendar.DATE, 4);
+                            } else if (level == 4) {
+                                c.add(Calendar.DATE, 7);
+                            } else if (level == 5) {
+                                c.add(Calendar.DATE, 14);
+                            } else {
+                                c.add(Calendar.DATE, 28);
+                            }
+                            card.setNext_time(c.getTime());
+                            card.setLevel(level);
+                        }else{
+                            card.setNext_time(c.getTime());
+                            card.setLevel(0);
+                        }
+                        resultList.add(card);
+                    }
 
+                    GameEndFragment fragment = new GameEndFragment();
+
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelableArrayList("resultList", resultList);
+                    fragment.setArguments(bundle);
+
+                    FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                    transaction.replace(R.id.fragment_container_game, fragment);
+                    transaction.addToBackStack(null);
+                    transaction.commit();
                 }else{
                     nextQuestion();
                 }

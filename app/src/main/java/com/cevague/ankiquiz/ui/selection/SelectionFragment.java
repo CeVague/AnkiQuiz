@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -56,6 +58,13 @@ public class SelectionFragment extends Fragment {
                 }
                 intent.putExtra("cardSetString", cardSetString);  // Ajouter des paramètres
                 startActivity(intent);
+
+                if (getActivity() != null) {
+                    // Obtenez le FragmentManager
+                    FragmentManager fragmentManager = getParentFragmentManager();
+                    // Retirez le fragment supérieur de la pile
+                    fragmentManager.popBackStack();
+                }
             }
         });
 

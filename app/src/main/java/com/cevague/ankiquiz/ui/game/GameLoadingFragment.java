@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +40,8 @@ public class GameLoadingFragment extends Fragment {
         if (getArguments() != null) {
             cardSetString = getArguments().getString("cardSetString");
         }
-        System.out.println(cardSetString);
+        assert cardSetString != null;
+        Log.i("cardSetString", cardSetString);
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -115,7 +117,7 @@ public class GameLoadingFragment extends Fragment {
                 }
             }
 
-            set.removeIf(cm -> !cm.isTo_learn());
+            // set.removeIf(cm -> !cm.isTo_learn());
 
             for(int i=0;i<set.size();i++){
                 set.get(i).setGame_type(new boolean[]{true, true, true, true, true, true, true, true, true});
