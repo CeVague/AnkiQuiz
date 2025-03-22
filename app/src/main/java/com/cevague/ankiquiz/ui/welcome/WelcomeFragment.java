@@ -15,14 +15,19 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.cevague.ankiquiz.R;
+import com.cevague.ankiquiz.sql.DBHelper;
 import com.cevague.ankiquiz.ui.data.DataManagementFragment;
 import com.cevague.ankiquiz.ui.selection.SelectionFragment;
 
+import java.util.Calendar;
+import java.util.Date;
+
 public class WelcomeFragment extends Fragment {
 
-    Button buttonPlay;
+    Button buttonPlay, buttonReset;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -31,11 +36,10 @@ public class WelcomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_welcome, container, false);
 
         buttonPlay = view.findViewById(R.id.button_play);
+        buttonReset = view.findViewById(R.id.button_reset);
 
         // startPulseAnimation(buttonPlay);
 
-        // Trouver le bouton dans le layout
-        Button button = view.findViewById(R.id.button_tmp);
 
 
         buttonPlay.setOnClickListener(new View.OnClickListener() {
@@ -58,6 +62,16 @@ public class WelcomeFragment extends Fragment {
             }
         });
 
+
+        buttonReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try (DBHelper db = new DBHelper(getContext())) {
+                    long nb = db.resetNTCard(Calendar.getInstance().getTime());
+                    Toast.makeText(getContext(), String.valueOf(nb), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         return view;
     }

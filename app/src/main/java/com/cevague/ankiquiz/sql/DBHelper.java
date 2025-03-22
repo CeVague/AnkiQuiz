@@ -13,6 +13,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -341,8 +343,39 @@ public class DBHelper extends SQLiteOpenHelper {
         return id;
     }
 
+    public long updateCard(CardModel card){
+        SQLiteDatabase db = this.getWritableDatabase();
 
+        ContentValues values = new ContentValues();
+        values.put(COL_ID_CARD, card.getId_c());
+        values.put(COL_ID_INFO, card.getInfo().getId_i());
+        values.put(COL_TO_LEARN, card.isTo_learn());
+        values.put(COL_LEVEL, card.getLevel());
 
+        String dateFormat = (String) android.text.format.DateFormat.format("yyyy-MM-dd", card.getNext_time());
+        values.put(COL_NEXT_TIME, dateFormat);
+
+        String strWhereClause = COL_ID_CARD + " = " + card.getId_c();
+
+        long nb = db.update(TABLE_CARDS, values, strWhereClause, null);
+        db.close();
+
+        return nb;
+    }
+
+    public long resetNTCard(Date date){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        String dateFormat = (String) android.text.format.DateFormat.format("yyyy-MM-dd", date);
+        values.put(COL_NEXT_TIME, dateFormat);
+
+        long nb = db.update(TABLE_CARDS, values, null, null);
+        db.close();
+
+        return nb;
+    }
 
     public CardModel getSimpleCard(long id) {
         CardModel card = null;
@@ -388,6 +421,20 @@ public class DBHelper extends SQLiteOpenHelper {
             card.setTexts(getAllFiles(info.getId_i(), "txt"));
 
             listCards.add(card);
+        }
+
+        return listCards;
+    }
+
+    public ArrayList<CardModel> getAllCardsBefore(String card_set, Date date){
+        String dateFormat = (String) android.text.format.DateFormat.format("yyyy-MM-dd", date);
+
+        ArrayList<CardModel> listCards = new ArrayList<>();
+
+        for(CardModel card : getAllCards(card_set)){
+            if(!card.getNext_time().after(date)){
+                listCards.add(card);
+            }
         }
 
         return listCards;

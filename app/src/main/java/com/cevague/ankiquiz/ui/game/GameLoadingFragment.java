@@ -19,6 +19,7 @@ import com.cevague.ankiquiz.sql.DBHelper;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -113,7 +114,7 @@ public class GameLoadingFragment extends Fragment {
             ArrayList<CardModel> set = new ArrayList<CardModel>();
             try (DBHelper db = new DBHelper(context)) {
                 for(String card_set : cards_set.split(";")){
-                    set.addAll(db.getAllCards(card_set));
+                    set.addAll(db.getAllCardsBefore(card_set, Calendar.getInstance().getTime()));
                 }
             }
 

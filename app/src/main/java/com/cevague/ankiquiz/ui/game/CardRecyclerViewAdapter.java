@@ -42,7 +42,6 @@ public class CardRecyclerViewAdapter  extends RecyclerView.Adapter<CardRecyclerV
     public void onBindViewHolder(@NonNull CardRecyclerViewAdapter.MyViewHolder holder, int position) {
         CardModel card = cardList.get(position);
 
-
         holder.tvName.setText(card.getInfo().getName());
         holder.tvDesc.setText(card.getInfo().getDescription());
 
