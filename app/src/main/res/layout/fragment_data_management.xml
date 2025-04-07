@@ -27,21 +27,28 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:orientation="horizontal"
-                android:weightSum="2" >
+                android:weightSum="3" >
 
                 <Button
                     android:id="@+id/button"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="fill_parent"
                     android:layout_weight="1"
                     android:text="@string/rename" />
 
                 <Button
                     android:id="@+id/button_import_data"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="fill_parent"
                     android:layout_weight="1"
                     android:text="@string/import_dataset" />
+
+                <Button
+                    android:id="@+id/button_import_data_url"
+                    android:layout_width="0dp"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text="@string/import_online_dataset" />
 
             </LinearLayout>
 

@@ -2,7 +2,7 @@
 <resources>
     <string name="manage_data">Gérer les données</string>
     <string name="play">Jouer</string>
-    <string name="import_dataset">Importer un fichier</string>
+    <string name="import_dataset">Importer depuis un fichier</string>
     <string name="create_dataset">Créer un nouveau lot...</string>
     <string name="set_dataset">Nommez le lot de cartes</string>
     <string name="add">Ajouter</string>
@@ -12,4 +12,5 @@
     <string name="rename">Renommer</string>
     <string name="next">Suivant</string>
     <string name="validate">Valider</string>
+    <string name="import_online_dataset">Importer depuis une URL</string>
 </resources>
