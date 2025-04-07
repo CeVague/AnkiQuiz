@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 
 import com.cevague.ankiquiz.R;
 import com.cevague.ankiquiz.sql.CardModel;
+import com.cevague.ankiquiz.sql.DBHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,10 +44,16 @@ public class GameEndFragment extends Fragment {
 
         adapter = new CardRecyclerViewAdapter(getContext(), resultList);
 
-
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
 
+
+        // Enregistrement des modification des cards
+        try (DBHelper db = new DBHelper(getContext())) {
+            for (CardModel card : resultList) {
+                db.updateCard(card);
+            }
+        }
         return view;
     }
 }

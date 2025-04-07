@@ -146,6 +146,10 @@ public class GameFragment extends Fragment {
     }
 
     private ArrayList<FileModel> getAnswerChoices(ArrayList<CardModel> cardList, String type, int nb){
+        while(cardList.size() < nb){
+            cardList.addAll(cardList);
+        }
+
         ArrayList<FileModel> answerChoices = new ArrayList<>();
 
         for(int i=0;i<nb;i++){

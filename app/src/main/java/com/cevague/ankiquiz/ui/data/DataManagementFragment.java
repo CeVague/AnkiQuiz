@@ -311,7 +311,7 @@ public class DataManagementFragment extends Fragment {
 
                 String line;
                 while ((line = br.readLine()) != null) {
-                    String[] fields = (line + ", ").split(",");
+                    String[] fields = (line + "; ").split(";");
 
                     // Création et/ou ajout d'un info la à DB
                     InfoModel info_tmp = new InfoModel(-1, directory.getName(), fields[0], fields[1], fields[2], fields[3], fields[4]);

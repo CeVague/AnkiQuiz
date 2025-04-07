@@ -48,9 +48,6 @@ public class CardRecyclerViewAdapter  extends RecyclerView.Adapter<CardRecyclerV
         Date date = card.getNext_time();
         String dateString = (String) android.text.format.DateFormat.format("dd/MM", date);
 
-        Date today = new Date();
-        String todayString = (String) android.text.format.DateFormat.format("dd/MM", today);
-
         switch (card.getWin()) {
             case -1:
                 holder.tvWin.setText("Echec");
