@@ -5,6 +5,8 @@ import static android.view.View.VISIBLE;
 
 import static com.cevague.ankiquiz.R.*;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -25,6 +27,8 @@ import android.widget.TextView;
 import com.cevague.ankiquiz.R;
 import com.cevague.ankiquiz.sql.FileModel;
 import com.cevague.ankiquiz.utils.AudioPlayer;
+import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -102,15 +106,12 @@ public class GameQCMFragment extends Fragment {
                 Bitmap bitmap = BitmapFactory.decodeFile(question.getAbsolute_path());
                 imgQuestion.setImageBitmap(bitmap);
                 imgQuestion.setVisibility(VISIBLE);
+                imgQuestion.setOnClickListener(v -> showImagePopup(getContext(), bitmap));
                 break;
             case "mp3":
                 sndQuestion.setVisibility(VISIBLE);
-                sndQuestion.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        AudioPlayer.playAudio(getContext(), question.getAbsolute_path());
-                    }
-                });
+                sndQuestion.setOnClickListener(v -> AudioPlayer.playAudio(getContext(), question.getAbsolute_path()));
+                sndQuestion.callOnClick();
                 break;
             default:
                 txtQuestion.setText(question.getAbsolute_path());
@@ -177,6 +178,19 @@ public class GameQCMFragment extends Fragment {
             }
 
         }
+    }
+
+    private void showImagePopup(Context context, Bitmap bitmap) {
+        Dialog dialog = new Dialog(context, android.R.style.Theme_Black_NoTitleBar);
+        dialog.setContentView(R.layout.dialog_fullscreen_image);
+
+        SubsamplingScaleImageView imageView = dialog.findViewById(R.id.zoomableImageView);
+        imageView.setImage(ImageSource.bitmap(bitmap));
+
+        ImageButton imgBtn = dialog.findViewById(R.id.button_close);
+        imgBtn.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 
 }

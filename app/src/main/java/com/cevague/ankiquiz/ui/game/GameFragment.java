@@ -84,14 +84,7 @@ public class GameFragment extends Fragment {
         btnNext = view.findViewById(R.id.button_next_game);
         btnClose = view.findViewById(R.id.button_close);
 
-        btnClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (getActivity() != null) {
-                    getActivity().finish();
-                }
-            }
-        });
+        btnClose.setOnClickListener(v -> startEndGame());
 
         idQuestion = 0;
 
@@ -292,14 +285,17 @@ public class GameFragment extends Fragment {
             resultList.add(card);
         }
 
-        GameEndFragment fragment = new GameEndFragment();
+        AudioPlayer.stopAudio();
+
+        GameEndFragment endFragment = new GameEndFragment();
 
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("resultList", resultList);
-        fragment.setArguments(bundle);
+        endFragment.setArguments(bundle);
 
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, fragment);
+        transaction.replace(R.id.fragment_container, endFragment);
         transaction.commit();
+
     }
 }

@@ -6,23 +6,25 @@
     android:orientation="vertical">
 
     <!-- Le FrameLayout prend toute la place disponible -->
+    <ImageButton
+        android:id="@+id/button_close"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="top|end"
+        android:layout_margin="10dp"
+        android:alpha="0.7"
+        android:background="?android:selectableItemBackgroundBorderless"
+        android:src="@drawable/close_icon"
+        app:tint="@color/colorAccent" />
+
     <FrameLayout
         android:id="@+id/fragment_container_game"
         android:layout_width="match_parent"
         android:layout_height="0dp"
     android:layout_weight="1" >
-
-        <ImageButton
-            android:id="@+id/button_close"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?android:selectableItemBackgroundBorderless"
-            android:src="@drawable/close_icon"
-            app:tint="@color/colorAccent"
-            android:alpha="0.7"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="10dp"/>
     </FrameLayout>
+
 
     <Button
         android:id="@+id/button_next_game"
