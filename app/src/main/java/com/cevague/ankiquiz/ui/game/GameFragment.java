@@ -210,7 +210,7 @@ public class GameFragment extends Fragment {
         // On récupère selon le type de question
         // La question, sa réponse
         // Et 4 réponses possibles
-        switch (3){//questionPair.first){
+        switch (questionPair.first){
             case 0:
                 question = getRandomElement(questionPair.second.getAudios());
                 answer = stringToFile(questionPair.second.getInfo().getName());

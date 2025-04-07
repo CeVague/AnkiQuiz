@@ -56,67 +56,44 @@
                 android:layout_rowWeight="1"
                 android:layout_height="wrap_content">
 
-                <Button
-                    android:id="@+id/textButtonQCMAnswer1"
-                    android:maxWidth="150dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Mon Texte qui parle de choses et d'autres bien plus que tout autre gens"/>
 
-                <ImageButton
-                    android:id="@+id/imageButtonQCMAnswer1"
-                    android:maxWidth="150dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_launcher_foreground"
-                    android:visibility="gone"/>
-            </FrameLayout>
-
-
-            <FrameLayout
-                android:layout_columnWeight="1"
-                android:layout_rowWeight="1"
-                android:layout_width="wrap_content"
-                android:layout_gravity="center"
-                android:layout_height="wrap_content">
-
-                <Button
-                    android:id="@+id/textButtonQCMAnswer2"
-                    android:maxWidth="150dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Mon Texte"
-                    android:visibility="gone"/>
-
-                <ImageButton
-                    android:id="@+id/imageButtonQCMAnswer2"
-                    android:maxWidth="150dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_launcher_foreground"/>
-            </FrameLayout>
-
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_gravity="center"
-                android:layout_columnWeight="1"
-                android:layout_rowWeight="1"
-                android:layout_height="wrap_content">
-
-                <Button
-                    android:id="@+id/textButtonQCMAnswer3"
+                <com.cevague.ankiquiz.ui.game.CustomButton
+                    android:id="@+id/buttonQCMAnswer1"
                     android:maxWidth="150dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Mon Texte"/>
+            </FrameLayout>
 
-                <ImageButton
-                    android:id="@+id/imageButtonQCMAnswer3"
+
+            <FrameLayout
+                android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_width="wrap_content"
+                android:layout_gravity="center"
+                android:layout_height="wrap_content">
+
+                <com.cevague.ankiquiz.ui.game.CustomButton
+                    android:id="@+id/buttonQCMAnswer2"
                     android:maxWidth="150dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_launcher_foreground"
-                    android:visibility="gone"/>
+                    android:text="Mon Texte"/>
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_gravity="center"
+                android:layout_columnWeight="1"
+                android:layout_rowWeight="1"
+                android:layout_height="wrap_content">
+
+                <com.cevague.ankiquiz.ui.game.CustomButton
+                    android:id="@+id/buttonQCMAnswer3"
+                    android:maxWidth="150dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mon Texte"/>
             </FrameLayout>
 
             <FrameLayout
@@ -126,20 +103,13 @@
                 android:layout_gravity="center"
                 android:layout_height="wrap_content">
 
-                <Button
-                    android:id="@+id/textButtonQCMAnswer4"
+
+                <com.cevague.ankiquiz.ui.game.CustomButton
+                    android:id="@+id/buttonQCMAnswer4"
                     android:maxWidth="150dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Mon Texte"/>
-
-                <ImageButton
-                    android:id="@+id/imageButtonQCMAnswer4"
-                    android:maxWidth="150dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_launcher_foreground"
-                    android:visibility="gone"/>
             </FrameLayout>
 
         </GridLayout>

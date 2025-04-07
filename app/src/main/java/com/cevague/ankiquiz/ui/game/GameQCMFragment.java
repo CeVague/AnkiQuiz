@@ -53,8 +53,7 @@ public class GameQCMFragment extends Fragment {
     ImageView imgQuestion;
     TextView txtQuestion;
     ImageButton sndQuestion;
-    Button[] btnAnswers;
-    ImageButton[] imgBtnAnswers;
+    CustomButton[] btnAnswers;
     int goodAnswer;
 
     @Override
@@ -88,17 +87,11 @@ public class GameQCMFragment extends Fragment {
         sndQuestion = view.findViewById(R.id.buttonQCMQuestion);
         sndQuestion.setVisibility(GONE);
 
-        btnAnswers = new Button[4];
-        btnAnswers[0] = view.findViewById(R.id.textButtonQCMAnswer1);
-        btnAnswers[1] = view.findViewById(R.id.textButtonQCMAnswer2);
-        btnAnswers[2] = view.findViewById(R.id.textButtonQCMAnswer3);
-        btnAnswers[3] = view.findViewById(R.id.textButtonQCMAnswer4);
-
-        imgBtnAnswers = new ImageButton[4];
-        imgBtnAnswers[0] = view.findViewById(R.id.imageButtonQCMAnswer1);
-        imgBtnAnswers[1] = view.findViewById(R.id.imageButtonQCMAnswer2);
-        imgBtnAnswers[2] = view.findViewById(R.id.imageButtonQCMAnswer3);
-        imgBtnAnswers[3] = view.findViewById(R.id.imageButtonQCMAnswer4);
+        btnAnswers = new CustomButton[4];
+        btnAnswers[0] = view.findViewById(R.id.buttonQCMAnswer1);
+        btnAnswers[1] = view.findViewById(R.id.buttonQCMAnswer2);
+        btnAnswers[2] = view.findViewById(R.id.buttonQCMAnswer3);
+        btnAnswers[3] = view.findViewById(R.id.buttonQCMAnswer4);
 
 
         // Gestion de la question et de son affichage
@@ -120,21 +113,6 @@ public class GameQCMFragment extends Fragment {
         }
 
 
-        int btnVisibility, imgVisibility;
-        if(answer.getType().equals("jpg")){
-            btnVisibility = GONE;
-            imgVisibility = VISIBLE;
-        }else{
-            btnVisibility = VISIBLE;
-            imgVisibility = GONE;
-        }
-
-        for(int i=0;i<4;i++){
-            btnAnswers[i].setVisibility(btnVisibility);
-            imgBtnAnswers[i].setVisibility(imgVisibility);
-        }
-
-
 
         goodAnswer = new Random().nextInt(4);
         answerChoices.set(goodAnswer, answer);
@@ -145,28 +123,27 @@ public class GameQCMFragment extends Fragment {
 
             // Si les réponses sont des images, on veut un bouton img spécifiques
             if(answer.getType().equals("jpg")){
-                btnAnswers[i].setVisibility(GONE);
-
-                DisplayMetrics metrics = new DisplayMetrics();
-                requireActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
-                int width = metrics.widthPixels;
-                int height = metrics.heightPixels;
                 // Convertir le chemin en Bitmap
-                Bitmap bitmap = scaledImageFromPath(answerChoices.get(i).getAbsolute_path(), width/6, height/6);
+                Bitmap smallBitmap = scaledImageFromPath(answerChoices.get(i).getAbsolute_path(), 400, 300);
+                Bitmap bitmap = imageFromPath(answerChoices.get(i).getAbsolute_path());
 
-                // L'appliqué au bouton
-                imgBtnAnswers[i].setImageBitmap(bitmap);
-                imgBtnAnswers[i].setVisibility(VISIBLE);
+                // L'appliquer au bouton
+                btnAnswers[i].setImageBitmap(smallBitmap);
+
+                btnAnswers[i].setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        showImagePopup(getContext(), bitmap);
+                        return false;
+                    }
+                });
 
             // Si les réponses sont des sons, on veut un bouton im spécifiques
             }else if(answer.getType().equals("mp3")){
 
             // Si les réponses sont du texte, on veut un bouton classique
             }else{
-                btnAnswers[i].setVisibility(VISIBLE);
                 btnAnswers[i].setText(answerChoices.get(i).getAbsolute_path());
-
-                imgBtnAnswers[i].setVisibility(GONE);
             }
 
             if(i == goodAnswer){
@@ -221,23 +198,39 @@ public class GameQCMFragment extends Fragment {
         dialog.show();
     }
 
-    private static Bitmap scaledImageFromPath(String path, int reqWidth, int reqHeight) {
+    private static Bitmap imageFromPath(String path) {
+        return BitmapFactory.decodeFile(path);
+    }
+
+    public Bitmap scaledImageFromPath(String imagePath, int maxWidth, int maxHeight) {
+        // Charger les dimensions de l'image sans la décoder pour éviter de charger l'image entière en mémoire
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(path, options);
 
-        int height = options.outHeight;
-        int width = options.outWidth;
-        int inSampleSize = 1;
+        // Décoder l'image pour obtenir ses dimensions sans créer de Bitmap
+        BitmapFactory.decodeFile(imagePath, options);
 
-        while ((height / inSampleSize) >= reqHeight && (width / inSampleSize) >= reqWidth) {
-            inSampleSize *= 2;
+        int imgWidth = options.outWidth;
+        int imgHeight = options.outHeight;
+
+        // Calculer les facteurs de mise à l'échelle tout en respectant les proportions
+        int scaleFactor = 1;
+        if (imgWidth > maxWidth || imgHeight > maxHeight) {
+            // Calculer le facteur de mise à l'échelle pour réduire l'image
+            int widthRatio = Math.round((float) imgWidth / (float) maxWidth);
+            int heightRatio = Math.round((float) imgHeight / (float) maxHeight);
+            scaleFactor = Math.max(widthRatio, heightRatio);
         }
 
+        // Redimensionner l'image avec le facteur de mise à l'échelle
         options.inJustDecodeBounds = false;
-        options.inSampleSize = inSampleSize;
+        options.inSampleSize = scaleFactor;
 
-        return BitmapFactory.decodeFile(path, options);
+        // Décoder à nouveau l'image avec les dimensions réduites
+        Bitmap scaledBitmap = BitmapFactory.decodeFile(imagePath, options);
+
+        // Retourner l'image redimensionnée
+        return scaledBitmap;
     }
 
 }
