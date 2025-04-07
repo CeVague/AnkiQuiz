@@ -42,6 +42,7 @@ public class GameFragment extends Fragment {
     private ArrayList<CardModel> cardList;
     private List<Pair<Integer, CardModel>> choiceList = new ArrayList<>();
     private Dictionary<CardModel, Boolean> resultDict = new Hashtable<>();
+    private Dictionary<CardModel, Boolean> doneDict = new Hashtable<>();
     private int idQuestion = 0;
 
     private Button btnNext;
@@ -67,6 +68,7 @@ public class GameFragment extends Fragment {
                     choiceList.add(new Pair<>(i, card));
                 }
                 resultDict.put(card, Boolean.TRUE);
+                doneDict.put(card, Boolean.FALSE);
             }
 
             Collections.shuffle(choiceList);
@@ -113,6 +115,8 @@ public class GameFragment extends Fragment {
                     CardModel card = choiceList.get(idQuestion).second;
                     boolean old = resultDict.get(card);
                     resultDict.put(card, old && win);
+
+                    doneDict.put(card, Boolean.TRUE);
 
                     setButtonNext();
                 }else{
@@ -261,9 +265,9 @@ public class GameFragment extends Fragment {
         for(CardModel card : cardList){
             Calendar c = Calendar.getInstance();
             c.setTime(new Date());
-            if(resultDict.get(card)){
+            if(resultDict.get(card) && doneDict.get(card)) {
                 int level = card.getLevel() + 1;
-                if(level == 1){
+                if (level == 1) {
                     c.add(Calendar.DATE, 1);
                 } else if (level == 2) {
                     c.add(Calendar.DATE, 2);
@@ -278,9 +282,13 @@ public class GameFragment extends Fragment {
                 }
                 card.setNext_time(c.getTime());
                 card.setLevel(level);
-            }else{
+                card.setWin(1);
+            }else if(doneDict.get(card)){
                 card.setNext_time(c.getTime());
                 card.setLevel(0);
+                card.setWin(-1);
+            }else{
+                card.setWin(0);
             }
             resultList.add(card);
         }

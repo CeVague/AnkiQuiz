@@ -22,6 +22,17 @@ public class CardModel implements Parcelable {
     private Date next_time;
     private boolean[] game_type;
 
+    private int win; // -1 lose, 0 neutral, 1 win
+
+
+    public int getWin() {
+        return win;
+    }
+
+    public void setWin(int win) {
+        this.win = win;
+    }
+
     public CardModel() {
     }
 
@@ -29,6 +40,13 @@ public class CardModel implements Parcelable {
         this.info = info;
         this.level = level;
         this.next_time = next_time;
+    }
+
+    public CardModel(InfoModel info, int level, Date next_time, int win) {
+        this.info = info;
+        this.level = level;
+        this.next_time = next_time;
+        this.win = win;
     }
 
     public CardModel(long id_c, InfoModel info, ArrayList<FileModel> audios, ArrayList<FileModel> images, ArrayList<FileModel> texts, boolean to_learn, int level, Date next_time, boolean[] game_type) {

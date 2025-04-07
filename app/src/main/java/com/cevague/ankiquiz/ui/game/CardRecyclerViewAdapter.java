@@ -51,13 +51,19 @@ public class CardRecyclerViewAdapter  extends RecyclerView.Adapter<CardRecyclerV
         Date today = new Date();
         String todayString = (String) android.text.format.DateFormat.format("dd/MM", today);
 
-        boolean lose = todayString.equals(dateString);
-        holder.tvWin.setText(lose ? "Echec" : "Réussite");
+        switch (card.getWin()) {
+            case -1:
+                holder.tvWin.setText("Echec");
+                holder.tvWin.setTextColor(ContextCompat.getColor(context, R.color.colorError));
+                break;
+            case 1:
+                holder.tvWin.setText("Réussite");
+                holder.tvWin.setTextColor(ContextCompat.getColor(context, R.color.colorPrimaryVariant));
+                break;
+            default:
+                holder.tvWin.setText("Non joué");
+                holder.tvWin.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
 
-        if(lose){
-            holder.tvWin.setTextColor(ContextCompat.getColor(context, R.color.colorError));
-        }else{
-            holder.tvWin.setTextColor(ContextCompat.getColor(context, R.color.colorPrimaryVariant));
         }
 
         holder.tvNextTime.setText(dateString);
