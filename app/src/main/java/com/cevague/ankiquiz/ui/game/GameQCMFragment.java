@@ -13,6 +13,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -78,7 +79,7 @@ public class GameQCMFragment extends Fragment {
             return view;
         }
 
-
+        // Initialisation des boutons et affichages
 
         imgQuestion = view.findViewById(R.id.imageViewQCMQuestion);
         imgQuestion.setVisibility(GONE);
@@ -100,8 +101,8 @@ public class GameQCMFragment extends Fragment {
         imgBtnAnswers[3] = view.findViewById(R.id.imageButtonQCMAnswer4);
 
 
+        // Gestion de la question et de son affichage
         switch (question.getType()){
-
             case "jpg":
                 Bitmap bitmap = BitmapFactory.decodeFile(question.getAbsolute_path());
                 imgQuestion.setImageBitmap(bitmap);
@@ -120,7 +121,7 @@ public class GameQCMFragment extends Fragment {
 
 
         int btnVisibility, imgVisibility;
-        if(answer.getType().equals("img")){
+        if(answer.getType().equals("jpg")){
             btnVisibility = GONE;
             imgVisibility = VISIBLE;
         }else{
@@ -138,8 +139,35 @@ public class GameQCMFragment extends Fragment {
         goodAnswer = new Random().nextInt(4);
         answerChoices.set(goodAnswer, answer);
 
+        // Atribution à chaque bouton son role
         for(int i=0;i<4;i++){
-            btnAnswers[i].setText(answerChoices.get(i).getAbsolute_path());
+
+
+            // Si les réponses sont des images, on veut un bouton img spécifiques
+            if(answer.getType().equals("jpg")){
+                btnAnswers[i].setVisibility(GONE);
+
+                DisplayMetrics metrics = new DisplayMetrics();
+                requireActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+                int width = metrics.widthPixels;
+                int height = metrics.heightPixels;
+                // Convertir le chemin en Bitmap
+                Bitmap bitmap = scaledImageFromPath(answerChoices.get(i).getAbsolute_path(), width/6, height/6);
+
+                // L'appliqué au bouton
+                imgBtnAnswers[i].setImageBitmap(bitmap);
+                imgBtnAnswers[i].setVisibility(VISIBLE);
+
+            // Si les réponses sont des sons, on veut un bouton im spécifiques
+            }else if(answer.getType().equals("mp3")){
+
+            // Si les réponses sont du texte, on veut un bouton classique
+            }else{
+                btnAnswers[i].setVisibility(VISIBLE);
+                btnAnswers[i].setText(answerChoices.get(i).getAbsolute_path());
+
+                imgBtnAnswers[i].setVisibility(GONE);
+            }
 
             if(i == goodAnswer){
                 btnAnswers[i].setOnClickListener(new View.OnClickListener() {
@@ -191,6 +219,25 @@ public class GameQCMFragment extends Fragment {
         imgBtn.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
+    }
+
+    private static Bitmap scaledImageFromPath(String path, int reqWidth, int reqHeight) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, options);
+
+        int height = options.outHeight;
+        int width = options.outWidth;
+        int inSampleSize = 1;
+
+        while ((height / inSampleSize) >= reqHeight && (width / inSampleSize) >= reqWidth) {
+            inSampleSize *= 2;
+        }
+
+        options.inJustDecodeBounds = false;
+        options.inSampleSize = inSampleSize;
+
+        return BitmapFactory.decodeFile(path, options);
     }
 
 }

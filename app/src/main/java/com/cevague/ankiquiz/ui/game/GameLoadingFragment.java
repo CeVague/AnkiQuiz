@@ -30,14 +30,14 @@ import java.util.concurrent.Future;
 public class GameLoadingFragment extends Fragment {
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private final Handler handler = new Handler(Looper.getMainLooper());
     private CountDownTimer countDown;
 
-    private String cardSetString;
+    private String cardSetString; // Liste des sets separés par une virgule
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Récupération de cardSetString
         if (getArguments() != null) {
             cardSetString = getArguments().getString("cardSetString");
         }
@@ -53,16 +53,13 @@ public class GameLoadingFragment extends Fragment {
         CircularProgressBar progressBar = view.findViewById(R.id.circularCountDown);
         TextView textViewPB = view.findViewById(R.id.textViewCountDown);
 
-
-
-
+        // Chargement asychrome des données
         Future<ArrayList<CardModel>> future = executeAsyncTaskWithFuture(getContext(), cardSetString);
-
-
 
         progressBar.setProgress(0);
         progressBar.setProgressMax(1000);
 
+        // Compte a rebourd qui, a la fin, récupère le résultat du chargement
         countDown = new CountDownTimer(1000, 10) {
             public void onTick(long millisUntilFinished) {
                 int progress = (int) (millisUntilFinished +1000) % 2000 ;
@@ -81,6 +78,7 @@ public class GameLoadingFragment extends Fragment {
             public void onFinish() {
                 progressBar.setProgress(0);
                 try {
+                    // Création du fragment de jeu bindé avec les cards
                     GameFragment fragment = GameFragment.newInstance(future.get());
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragment_container, fragment)
@@ -93,19 +91,7 @@ public class GameLoadingFragment extends Fragment {
         };
         countDown.start();
 
-
-
-
-
         return view;
-    }
-
-    public static GameFragment newInstance(ArrayList<CardModel> liste) {
-        GameFragment fragment = new GameFragment();
-        Bundle args = new Bundle();
-        args.putParcelableArrayList("card_list", liste);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     private Future<ArrayList<CardModel>> executeAsyncTaskWithFuture(Context context, String cards_set) {
@@ -113,6 +99,7 @@ public class GameLoadingFragment extends Fragment {
 
             ArrayList<CardModel> set = new ArrayList<CardModel>();
             try (DBHelper db = new DBHelper(context)) {
+                // Pour chaque set (séparé par des ;) on ajouter toutes les cartes à faire
                 for(String card_set : cards_set.split(";")){
                     set.addAll(db.getAllCardsBefore(card_set, Calendar.getInstance().getTime()));
                 }
@@ -120,6 +107,7 @@ public class GameLoadingFragment extends Fragment {
 
             // set.removeIf(cm -> !cm.isTo_learn());
 
+            // Chaque carte doit faire chaque jeux
             for(int i=0;i<set.size();i++){
                 set.get(i).setGame_type(new boolean[]{true, true, true, true, true, true, true, true, true});
             }

@@ -37,7 +37,16 @@ import java.util.Random;
  */
 public class GameFragment extends Fragment {
     private static final String ARG_LISTE_CARTES = "liste_cartes";
-    private static final int NB_TYPE = 3;
+    private static final int NB_TYPE = 4;
+    // Type 0 : Donne audio, trouve nom
+    // Type 1 : Donne image, trouve nom
+    // Type 2 : Donne texte, trouve nom
+
+    // Type 3 : Donne nom, trouve audio
+    // Type 4 : Donne nom, trouve image
+    // Type 5 : Donne nom, trouve texte
+
+    // Type autre : Donne nom, trouve nom
 
     private ArrayList<CardModel> cardList;
     private List<Pair<Integer, CardModel>> choiceList = new ArrayList<>();
@@ -48,6 +57,7 @@ public class GameFragment extends Fragment {
     private Button btnNext;
     private ImageButton btnClose;
 
+    // Constructeur permetant de joindre la liste de card a jouer avec le fragment
     public static GameFragment newInstance(ArrayList<CardModel> cardList) {
         GameFragment fragment = new GameFragment();
         Bundle args = new Bundle();
@@ -62,7 +72,7 @@ public class GameFragment extends Fragment {
 
         if (getArguments() != null) {
             cardList = getArguments().getParcelableArrayList(ARG_LISTE_CARTES);
-
+            // On crée les combinaisons type exercice + card
             for(CardModel card : cardList){
                 for(int i = 0; i < NB_TYPE; i++){
                     choiceList.add(new Pair<>(i, card));
@@ -95,11 +105,13 @@ public class GameFragment extends Fragment {
         return view;
     }
 
+    // Pour chaque question, on prépare un GameQCMFragment combiné avec sa question
     private void nextQuestion(){
         System.out.println(idQuestion);
 
         GameQCMFragment fragment = new GameQCMFragment();
         Bundle bundle = getNextBundle();
+
 
         if(bundle == null){
             startEndGame();
@@ -145,6 +157,7 @@ public class GameFragment extends Fragment {
         return tmp;
     }
 
+    // Récupère NB cards aléatoirement
     private ArrayList<FileModel> getAnswerChoices(ArrayList<CardModel> cardList, String type, int nb){
         while(cardList.size() < nb){
             cardList.addAll(cardList);
@@ -194,7 +207,10 @@ public class GameFragment extends Fragment {
         FileModel answer;
         ArrayList<FileModel> answerChoices;
 
-        switch (questionPair.first){
+        // On récupère selon le type de question
+        // La question, sa réponse
+        // Et 4 réponses possibles
+        switch (3){//questionPair.first){
             case 0:
                 question = getRandomElement(questionPair.second.getAudios());
                 answer = stringToFile(questionPair.second.getInfo().getName());
@@ -209,6 +225,11 @@ public class GameFragment extends Fragment {
                 question = getRandomElement(questionPair.second.getTexts());
                 answer = stringToFile(questionPair.second.getInfo().getName());
                 answerChoices = getAnswerChoices(answerList, "name", 4);
+                break;
+            case 3:
+                question = stringToFile(questionPair.second.getInfo().getName());
+                answer = getRandomElement(questionPair.second.getImages());
+                answerChoices = getAnswerChoices(answerList, "jpg", 4);
                 break;
             default:
                 question = stringToFile(questionPair.second.getInfo().getName());
