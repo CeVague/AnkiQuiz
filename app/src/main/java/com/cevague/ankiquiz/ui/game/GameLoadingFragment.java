@@ -20,6 +20,8 @@ import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -31,7 +33,7 @@ public class GameLoadingFragment extends Fragment {
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private CountDownTimer countDown;
-
+    private static final int MAX_BY_SESSION = 6; // Nombre max de carte a apprendre par séance
     private String cardSetString; // Liste des sets separés par une virgule
 
     @Override
@@ -97,12 +99,16 @@ public class GameLoadingFragment extends Fragment {
     private Future<ArrayList<CardModel>> executeAsyncTaskWithFuture(Context context, String cards_set) {
         Callable<ArrayList<CardModel>> callableTask = () -> {
 
-            ArrayList<CardModel> set = new ArrayList<CardModel>();
+            ArrayList<CardModel> set = new ArrayList<>();
             try (DBHelper db = new DBHelper(context)) {
                 // Pour chaque set (séparé par des ;) on ajouter toutes les cartes à faire
                 for(String card_set : cards_set.split(";")){
                     set.addAll(db.getAllCardsBefore(card_set, Calendar.getInstance().getTime()));
                 }
+
+                // Limitation du nombre de card a apprendre en une session
+                Collections.shuffle(set);
+                set = new ArrayList<>(set.subList(0, Math.min(MAX_BY_SESSION, set.size())));
             }
 
             // set.removeIf(cm -> !cm.isTo_learn());
