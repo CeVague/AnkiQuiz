@@ -38,14 +38,17 @@ import java.util.Random;
  */
 public class GameFragment extends Fragment {
     private static final String ARG_LISTE_CARTES = "liste_cartes";
-    private static final int NB_TYPE = 4;
+    private static final int NB_TYPE = 5;
     // Type 0 : Donne audio, trouve nom
     // Type 1 : Donne image, trouve nom
     // Type 2 : Donne texte, trouve nom
 
-    // Type 3 : Donne nom, trouve audio
-    // Type 4 : Donne nom, trouve image
-    // Type 5 : Donne nom, trouve texte
+    // Type 3 : Donne nom, trouve image
+    // Type 4 : Donne nom, trouve texte
+
+    // Type 10 : Donne audio, entre nom
+    // Type 11 : Donne image, entre nom
+    // Type 12 : Donne texte, entre nom
 
     // Type autre : Donne nom, trouve nom
 
@@ -74,7 +77,8 @@ public class GameFragment extends Fragment {
             cardList = getArguments().getParcelableArrayList(ARG_LISTE_CARTES);
             // On crée les combinaisons type exercice + card
             for(CardModel card : cardList){
-                for(int i = 0; i < NB_TYPE; i++){
+                //for(int i = 0; i < NB_TYPE; i++){
+                for(int i = 11; i < 12; i++){
                     choiceList.add(new Pair<>(i, card));
                 }
                 resultDict.put(card, Boolean.TRUE);
@@ -107,14 +111,20 @@ public class GameFragment extends Fragment {
     private void nextQuestion(){
         Log.i("nextQuestion", "Taille choiceList : " + choiceList.size());
 
-        GameQCMFragment fragment = new GameQCMFragment();
+        GameFragmentListener fragment;
         Bundle bundle = getNextBundle();
-
 
         if(bundle == null){
             startEndGame();
             return ;
         }
+
+        if(bundle.containsKey("Scrabble")){
+            fragment = new GameScrabbleFragment();
+        }else{
+            fragment = new GameQCMFragment();
+        }
+
 
         fragment.setArguments(bundle);
 
@@ -162,6 +172,8 @@ public class GameFragment extends Fragment {
         while(cardList.size() < nb){
             cardList.addAll(cardList);
         }
+
+        Collections.shuffle(cardList);
 
         ArrayList<FileModel> answerChoices = new ArrayList<>();
 
@@ -232,11 +244,34 @@ public class GameFragment extends Fragment {
                 answer = stringToFile(questionPair.second.getInfo().getName());
                 answerChoices = getAnswerChoices(answerList, "name", 4);
                 break;
+
             case 3:
                 question = stringToFile(questionPair.second.getInfo().getName());
                 answer = getRandomElement(questionPair.second.getImages());
                 answerChoices = getAnswerChoices(answerList, "jpg", 4);
                 break;
+            case 4:
+                question = stringToFile(questionPair.second.getInfo().getName());
+                answer = getRandomElement(questionPair.second.getTexts());
+                answerChoices = getAnswerChoices(answerList, "txt", 4);
+                break;
+
+            case 10:
+                question = getRandomElement(questionPair.second.getAudios());
+                answer = stringToFile(questionPair.second.getInfo().getName());
+                answerChoices = getAnswerChoices(answerList, "name", 4);
+                break;
+            case 11:
+                question = getRandomElement(questionPair.second.getImages());
+                answer = stringToFile(questionPair.second.getInfo().getName());
+                answerChoices = getAnswerChoices(answerList, "name", 4);
+                break;
+            case 12:
+                question = getRandomElement(questionPair.second.getTexts());
+                answer = stringToFile(questionPair.second.getInfo().getName());
+                answerChoices = getAnswerChoices(answerList, "name", 4);
+                break;
+
             default:
                 question = stringToFile(questionPair.second.getInfo().getName());
                 answer = stringToFile(questionPair.second.getInfo().getName());
@@ -248,6 +283,10 @@ public class GameFragment extends Fragment {
         bundle.putParcelable("question", question);
         bundle.putParcelable("answer", answer);
         bundle.putParcelableArrayList("answerChoices", answerChoices);
+
+        if(questionPair.first >= 10){
+            bundle.putParcelableArrayList("Scrabble", null);
+        }
 
         return bundle;
     }

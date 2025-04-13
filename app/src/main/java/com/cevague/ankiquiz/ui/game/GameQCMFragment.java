@@ -34,18 +34,7 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class GameQCMFragment extends Fragment {
-
-
-    public interface OnAnswerListener {
-        void onAnswer(boolean win, boolean played);
-    }
-
-    private OnAnswerListener answerListener;
-
-    public void setOnAnswerListener(OnAnswerListener listener){
-        this.answerListener = listener;
-    }
+public class GameQCMFragment extends GameFragmentListener { // implémente OnAnswerListener
 
     FileModel question, answer;
     ArrayList<FileModel> answerChoices;
@@ -64,13 +53,13 @@ public class GameQCMFragment extends Fragment {
 
         if (getArguments() != null) {
             question = getArguments().getParcelable("question");
-            Log.d("FragmentB", "Valeur reçue question : " + question);
+            Log.d("GameQCMFragment", "Valeur reçue question : " + question);
 
             answer = getArguments().getParcelable("answer");
-            Log.d("FragmentB", "Valeur reçue answer : " + answer);
+            Log.d("GameQCMFragment", "Valeur reçue answer : " + answer);
 
             answerChoices = getArguments().getParcelableArrayList("answerChoices");
-            Log.d("FragmentB", "Valeur reçue answerChoices : " + answerChoices);
+            Log.d("GameQCMFragment", "Valeur reçue answerChoices : " + answerChoices);
         }
 
         if(question == null || answer == null){
