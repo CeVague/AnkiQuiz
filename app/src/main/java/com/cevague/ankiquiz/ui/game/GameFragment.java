@@ -159,6 +159,8 @@ public class GameFragment extends Fragment {
 
     // Récupère NB cards aléatoirement
     private ArrayList<FileModel> getAnswerChoices(ArrayList<CardModel> cardList, String type, int nb){
+        //TODO Gérer quand il n'y a plus de cards
+
         while(cardList.size() < nb){
             cardList.addAll(cardList);
         }
@@ -198,10 +200,15 @@ public class GameFragment extends Fragment {
 
         // Génération de la question et de ses réponses
 
-        // Get the ieme question of the set
+        // Récupération de la ieme question du set
         Pair<Integer, CardModel> questionPair = choiceList.get(idQuestion);
-        // Get all the answer card possible (shuffle)
+        // Récupération des card de réponses  possible mélangées
         ArrayList<CardModel> answerList = getAnswerList(cardList, questionPair.second);
+
+        // S'il n'y a plus assez de réponses possibles, on arrete la partie
+        if(answerList.size() < 2){
+            return null;
+        }
 
         FileModel question;
         FileModel answer;
