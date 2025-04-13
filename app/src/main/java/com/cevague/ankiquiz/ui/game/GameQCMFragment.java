@@ -124,15 +124,17 @@ public class GameQCMFragment extends Fragment {
             // Si les réponses sont des images, on veut un bouton img spécifiques
             if(answer.getType().equals("jpg")){
                 // Convertir le chemin en Bitmap
-                Bitmap smallBitmap = scaledImageFromPath(answerChoices.get(i).getAbsolute_path(), 400, 300);
-                Bitmap bitmap = imageFromPath(answerChoices.get(i).getAbsolute_path());
+                String path = answerChoices.get(i).getAbsolute_path();
+                Bitmap smallBitmap = scaledImageFromPath(path, 400, 300);
 
                 // L'appliquer au bouton
                 btnAnswers[i].setImageBitmap(smallBitmap);
 
+                // Au clic sur le bouton on charge la grosse image
                 btnAnswers[i].setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
+                        Bitmap bitmap = imageFromPath(path);
                         showImagePopup(getContext(), bitmap);
                         return false;
                     }
