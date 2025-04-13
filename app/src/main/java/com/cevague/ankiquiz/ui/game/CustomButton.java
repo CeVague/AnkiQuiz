@@ -2,6 +2,12 @@ package com.cevague.ankiquiz.ui.game;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.ImageView;
@@ -16,7 +22,7 @@ public class CustomButton extends LinearLayout {
 
     private ImageView imageView;
     private TextView textView;
-    private CardView cardView;
+    private CardView cardTextView, cardImageView;
 
     private int type = 0; // 1 si image, -1 si texte
 
@@ -43,7 +49,8 @@ public class CustomButton extends LinearLayout {
         imageView = findViewById(R.id.custom_image);
         textView = findViewById(R.id.custom_text);
 
-        cardView = findViewById(R.id.custom_card);
+        cardTextView = findViewById(R.id.custom_card_text);
+        cardImageView = findViewById(R.id.custom_card_image);
     }
 
     // Méthodes pour personnaliser l'image et le texte
@@ -51,7 +58,7 @@ public class CustomButton extends LinearLayout {
         imageView.setImageResource(resId);
 
         textView.setVisibility(GONE);
-        cardView.setVisibility(GONE);
+        cardTextView.setVisibility(GONE);
 
         type = 1;
     }
@@ -59,7 +66,7 @@ public class CustomButton extends LinearLayout {
         imageView.setImageBitmap(bitmap);
 
         textView.setVisibility(GONE);
-        cardView.setVisibility(GONE);
+        cardTextView.setVisibility(GONE);
 
         type = 1;
     }
@@ -68,6 +75,7 @@ public class CustomButton extends LinearLayout {
         textView.setText(text);
 
         imageView.setVisibility(GONE);
+        cardImageView.setVisibility(GONE);
 
         type = -1;
     }
@@ -75,9 +83,9 @@ public class CustomButton extends LinearLayout {
     @Override
     public void setBackgroundColor(int color) {
         if(type == 1){
-            super.setBackgroundColor(color);
+            cardImageView.setCardBackgroundColor(color);
         }else if(type == -1){
-            cardView.setCardBackgroundColor(color);
+            cardTextView.setCardBackgroundColor(color);
         }else{
             super.setBackgroundColor(color);
         }

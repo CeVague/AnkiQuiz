@@ -24,19 +24,21 @@
                 android:layout_height="wrap_content"
                 tools:src="@tools:sample/avatars" />
 
-            <TextView
-                android:layout_gravity="center"
-                android:id="@+id/textViewQCMQuestion"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TextView" />
-
             <ImageButton
                 android:layout_gravity="center"
                 android:id="@+id/buttonQCMQuestion"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@android:drawable/ic_lock_silent_mode_off" />
+
+            <TextView
+                android:id="@+id/textViewQCMQuestion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="TextView"
+                android:textSize="24sp"
+                android:textStyle="bold" />
         </FrameLayout>
 
         <GridLayout

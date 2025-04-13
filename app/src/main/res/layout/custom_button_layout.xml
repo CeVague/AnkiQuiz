@@ -9,13 +9,31 @@
     android:gravity="center_vertical">
 
     <!-- ImageView pour l'image -->
-    <ImageView
-        android:id="@+id/custom_image"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/custom_card_image"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardElevation="0dp"
+        app:useCompatPadding="false"
+        app:cardCornerRadius="20dp"
+        app:contentPadding="5dp">
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:cardElevation="0dp"
+            app:useCompatPadding="false"
+            app:cardCornerRadius="20dp">
+            <ImageView
+                android:id="@+id/custom_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"/>
+        </androidx.cardview.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/custom_card"
+        android:id="@+id/custom_card_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:cardCornerRadius="20dp"
