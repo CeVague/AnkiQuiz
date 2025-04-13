@@ -12,6 +12,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -52,7 +53,6 @@ public class GameFragment extends Fragment {
     private List<Pair<Integer, CardModel>> choiceList = new ArrayList<>();
     private Dictionary<CardModel, Boolean> resultDict = new Hashtable<>();
     private Dictionary<CardModel, Boolean> doneDict = new Hashtable<>();
-    private int idQuestion = 0;
 
     private Button btnNext;
     private ImageButton btnClose;
@@ -98,8 +98,6 @@ public class GameFragment extends Fragment {
 
         btnClose.setOnClickListener(v -> startEndGame());
 
-        idQuestion = 0;
-
         nextQuestion();
 
         return view;
@@ -107,7 +105,7 @@ public class GameFragment extends Fragment {
 
     // Pour chaque question, on prépare un GameQCMFragment combiné avec sa question
     private void nextQuestion(){
-        System.out.println(idQuestion);
+        Log.i("nextQuestion", "Taille choiceList : " + choiceList.size());
 
         GameQCMFragment fragment = new GameQCMFragment();
         Bundle bundle = getNextBundle();
@@ -124,7 +122,7 @@ public class GameFragment extends Fragment {
             @Override
             public void onAnswer(boolean win, boolean played) {
                 if(played){
-                    CardModel card = choiceList.get(idQuestion).second;
+                    CardModel card = choiceList.get(0).second;
                     boolean old = resultDict.get(card);
                     resultDict.put(card, old && win);
 
@@ -132,7 +130,7 @@ public class GameFragment extends Fragment {
 
                     setButtonNext();
                 }else{
-                    idQuestion++;
+                    choiceList.remove(0);
                     nextQuestion();
                 }
             }
@@ -194,19 +192,20 @@ public class GameFragment extends Fragment {
     }
 
     private Bundle getNextBundle(){
-        if(idQuestion >= choiceList.size()){
+        if(choiceList.isEmpty()){
             return null;
         }
 
         // Génération de la question et de ses réponses
 
-        // Récupération de la ieme question du set
-        Pair<Integer, CardModel> questionPair = choiceList.get(idQuestion);
+        // Récupération de la premiere question du set
+        Pair<Integer, CardModel> questionPair = choiceList.get(0);
         // Récupération des card de réponses  possible mélangées
         ArrayList<CardModel> answerList = getAnswerList(cardList, questionPair.second);
 
         // S'il n'y a plus assez de réponses possibles, on arrete la partie
         if(answerList.size() < 2){
+            Toast.makeText(getContext(), "Plus assez de cartes pour jouer", Toast.LENGTH_SHORT).show();
             return null;
         }
 
@@ -278,11 +277,11 @@ public class GameFragment extends Fragment {
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                idQuestion++;
+                choiceList.remove(0);
                 btnNext.setVisibility(INVISIBLE);
                 AudioPlayer.stopAudio();
 
-                if(idQuestion >= choiceList.size()){
+                if(choiceList.isEmpty()){
                     Log.i("Boutton next", "Plus aucune question");
                     startEndGame();
                 }else{
