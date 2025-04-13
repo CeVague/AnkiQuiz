@@ -49,6 +49,8 @@
             android:rowCount="2"
             android:layout_weight="1"
             android:orientation="horizontal"
+            android:alignmentMode="alignMargins"
+            android:rowOrderPreserved="false"
         >
 
             <FrameLayout
