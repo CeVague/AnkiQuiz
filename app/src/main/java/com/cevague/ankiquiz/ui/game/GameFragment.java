@@ -57,8 +57,8 @@ public class GameFragment extends Fragment {
 
     private ArrayList<CardModel> cardList;
     private List<Pair<Integer, CardModel>> choiceList = new ArrayList<>();
-    private Dictionary<CardModel, Boolean> resultDict = new Hashtable<>();
-    private Dictionary<CardModel, Boolean> doneDict = new Hashtable<>();
+    private Dictionary<CardModel, Integer> resultDict = new Hashtable<>();
+    private Dictionary<CardModel, Boolean> errorDict = new Hashtable<>();
 
     private Button btnNext;
     private ImageButton btnClose;
@@ -80,12 +80,12 @@ public class GameFragment extends Fragment {
             cardList = getArguments().getParcelableArrayList(ARG_LISTE_CARTES);
             // On crée les combinaisons type exercice + card
             for(CardModel card : cardList){
-                //for(int i = 0; i < NB_TYPE; i++){
-                for(int i = 11; i < 12; i++){
+                for(int i = 0; i < NB_TYPE; i++){
+                //for(int i = 11; i < 12; i++){
                     choiceList.add(new Pair<>(i, card));
                 }
-                resultDict.put(card, Boolean.TRUE);
-                doneDict.put(card, Boolean.FALSE);
+                resultDict.put(card, 0);
+                errorDict.put(card, Boolean.FALSE);
             }
 
             Collections.shuffle(choiceList);
@@ -149,16 +149,37 @@ public class GameFragment extends Fragment {
         fragment.setOnAnswerListener(new GameQCMFragment.OnAnswerListener() {
             @Override
             public void onAnswer(boolean win, boolean played) {
+                CardModel card = choiceList.get(0).second;
+                int questionType = choiceList.get(0).first;
+
+                // Si on a reussi la question, on ajoute 1 au resultDict
+                if(win){
+                    int newResult = resultDict.get(card) + 1;
+                    resultDict.put(card, newResult);
+
+                    // Si on a déjà fait toutes les questions, on ajoute le Scrabble
+                    if(newResult == NB_TYPE){
+                        choiceList.add(new Pair<>(10, card));
+                        choiceList.add(new Pair<>(11, card));
+                        choiceList.add(new Pair<>(12, card));
+
+                        // Et on mélange les cartes (comme ça pas trop fréquent)
+                        Collections.shuffle(choiceList);
+                    }
+                }else{
+                    // Si on n'a pas reussi la question, on la remet à la fin de la pile
+                    choiceList.add(new Pair<>(questionType, card));
+                    // Et on prend note de l'erreur
+                    errorDict.put(card, Boolean.TRUE);
+                }
+                // Dans tous les cas, cette question est supprimée
+                choiceList.remove(0);
+
+                // Si on a bien joué on affiche le bouton next
                 if(played){
-                    CardModel card = choiceList.get(0).second;
-                    boolean old = resultDict.get(card);
-                    resultDict.put(card, old && win);
-
-                    doneDict.put(card, Boolean.TRUE);
-
                     setButtonNext();
                 }else{
-                    choiceList.remove(0);
+                    // Sinon on passe discrètement à la suivante
                     nextQuestion();
                 }
             }
@@ -334,7 +355,6 @@ public class GameFragment extends Fragment {
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                choiceList.remove(0);
                 btnNext.setVisibility(INVISIBLE);
                 AudioPlayer.stopAudio();
 
@@ -353,7 +373,8 @@ public class GameFragment extends Fragment {
         for(CardModel card : cardList){
             Calendar c = Calendar.getInstance();
             c.setTime(new Date());
-            if(resultDict.get(card) && doneDict.get(card)) {
+            // Si on a fait toutes les cartes de base et un scrabble sans faire d'erreur
+            if(resultDict.get(card) > NB_TYPE + 1 && !errorDict.get(card)) {
                 int level = card.getLevel() + 1;
                 if (level == 1) {
                     c.add(Calendar.DATE, 1);
@@ -371,11 +392,13 @@ public class GameFragment extends Fragment {
                 card.setNext_time(c.getTime());
                 card.setLevel(level);
                 card.setWin(1);
-            }else if(doneDict.get(card)){
+            }else if(errorDict.get(card)){
+                // Si on a fait au moins une erreur
                 card.setNext_time(c.getTime());
                 card.setLevel(0);
                 card.setWin(-1);
             }else{
+                // Si on n'a pas fait toutes les cartes mais qu'on a fait aucune erreur
                 card.setWin(0);
             }
             resultList.add(card);
