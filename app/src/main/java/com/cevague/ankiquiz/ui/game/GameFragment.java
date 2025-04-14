@@ -149,8 +149,12 @@ public class GameFragment extends Fragment {
         fragment.setOnAnswerListener(new GameQCMFragment.OnAnswerListener() {
             @Override
             public void onAnswer(boolean win, boolean played) {
+                // On sauvegarde la carte qui vient d'être jouée
                 CardModel card = choiceList.get(0).second;
                 int questionType = choiceList.get(0).first;
+
+                // Et on la supprime du set
+                choiceList.remove(0);
 
                 // Si on a reussi la question, on ajoute 1 au resultDict
                 if(win){
@@ -172,8 +176,6 @@ public class GameFragment extends Fragment {
                     // Et on prend note de l'erreur
                     errorDict.put(card, Boolean.TRUE);
                 }
-                // Dans tous les cas, cette question est supprimée
-                choiceList.remove(0);
 
                 // Si on a bien joué on affiche le bouton next
                 if(played){
@@ -374,7 +376,8 @@ public class GameFragment extends Fragment {
             Calendar c = Calendar.getInstance();
             c.setTime(new Date());
             // Si on a fait toutes les cartes de base et un scrabble sans faire d'erreur
-            if(resultDict.get(card) > NB_TYPE + 1 && !errorDict.get(card)) {
+            if(resultDict.get(card) > NB_TYPE && !errorDict.get(card)) {
+                // On augmente d'un niveau et on met a jout la future date
                 int level = card.getLevel() + 1;
                 if (level == 1) {
                     c.add(Calendar.DATE, 1);
