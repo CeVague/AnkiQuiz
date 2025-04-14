@@ -46,6 +46,9 @@ public class GameScrabbleFragment extends GameFragmentListener {
 
     TextView txtAnswer;
 
+    int nbFalse;
+    private final static int NB_MAX_FALSE = 3;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -67,6 +70,8 @@ public class GameScrabbleFragment extends GameFragmentListener {
             answerListener.onAnswer(true, false);
             return view;
         }
+
+        nbFalse = 0;
 
         // Initialisation des boutons et affichages
         imgQuestion = view.findViewById(id.imageViewScrabbleQuestion);
@@ -101,25 +106,30 @@ public class GameScrabbleFragment extends GameFragmentListener {
 
         GridLayout gridLayout = view.findViewById(R.id.gridLayoutScrabble);
 
-        List<Character> characters = stringToChar(answer);
+        int chunkSize = 1 + answer.length() / 8;
+        int nbColumns = 7 - chunkSize;
+
+        gridLayout.setColumnCount(nbColumns);
+
+        List<String> listStrings = stringToStrings(answer, chunkSize);
 
         // Création d'une liste de mauvaises réponses
-        List<Character> otherCharacters = new ArrayList<>();
+        List<String> otherCharacters = new ArrayList<>();
         for(FileModel file : answerChoices){
-            otherCharacters.addAll(stringToChar(file.getAbsolute_path()));
+            otherCharacters.addAll(stringToStrings(file.getAbsolute_path(), chunkSize));
         }
         Collections.shuffle(otherCharacters);
 
         // Ajout de 50% de mauvaises réponses ou en avoir au moins 21
-        characters.addAll(otherCharacters.subList(0, Math.max(characters.size()/2, 21 - characters.size())));
+        listStrings.addAll(otherCharacters.subList(0, nbColumns * 4 - listStrings.size()));
 
 
-        Collections.shuffle(characters);
+        Collections.shuffle(listStrings);
 
-        for (Character c : characters) {
+        for (String str : listStrings) {
             Button btn = new Button(requireContext());
             btn.setAllCaps(false);
-            btn.setText(String.valueOf(c));
+            btn.setText(String.valueOf(str));
             btn.setTextSize(25);
 
             // Optionnel : ID, style, onClick, etc.
@@ -138,7 +148,7 @@ public class GameScrabbleFragment extends GameFragmentListener {
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    boolean goodAnswer = clickLetter(v, c);
+                    boolean goodAnswer = clickLetter(v, str);
                     if(!goodAnswer){
                         Animation wizzAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.wizz);
                         v.startAnimation(wizzAnimation);
@@ -173,12 +183,17 @@ public class GameScrabbleFragment extends GameFragmentListener {
         return BitmapFactory.decodeFile(path);
     }
 
-    private static List<Character> stringToChar(String str){
-        List<Character> chars = new ArrayList<>();
-        for (char c : str.toCharArray()) {
-            chars.add(c);
+    private static List<String> stringToStrings(String str, int chunkSize){
+        List<String> troncons = new ArrayList<>();
+
+        for(String word : str.split(" ")) {
+            for (int i = 0; i < word.length(); i += chunkSize) {
+                int fin = Math.min(i + chunkSize, word.length());
+                troncons.add(word.substring(i, fin));
+            }
         }
-        return chars;
+
+        return troncons;
     }
 
     public static char[] concatCharArrays(char[] a, char[] b) {
@@ -189,9 +204,20 @@ public class GameScrabbleFragment extends GameFragmentListener {
     }
 
     // A chaque lettre, vérifie que ce soit une bonne réponse
-    private boolean clickLetter(View v, char c){
+    private boolean clickLetter(View v, String str){
+        if(nbFalse >= NB_MAX_FALSE){
+            return false;
+        }
+
+        String oldAnswer = txtAnswer.getText().toString();
+
+        // Ajout des espaces s'il y en a besoin
+        while(answer.substring(oldAnswer.length(), oldAnswer.length()+1).isBlank()){
+            oldAnswer += " ";
+        }
+
         // On crée le mot avec une lettre en plus
-        String tempAnswer = txtAnswer.getText().toString() + c;
+        String tempAnswer = oldAnswer + str;
 
         // Si c'est la réponse complette alors on a gagné
         if(tempAnswer.equals(answer)){
@@ -208,7 +234,11 @@ public class GameScrabbleFragment extends GameFragmentListener {
             txtAnswer.setText(tempAnswer);
             return true;
         }else{
-            //TODO Au bout de 3 mauvaises réponses, faire answerListener.onAnswer(false, true);
+            nbFalse++;
+            if(nbFalse == NB_MAX_FALSE){
+                answerListener.onAnswer(false, true);
+                txtAnswer.setText(answer);
+            }
             return false;
         }
     }
