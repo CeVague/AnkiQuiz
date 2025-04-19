@@ -194,7 +194,24 @@ public class DataManagementFragment extends Fragment {
                     ArrayList<FileModel> list_file = db.getAllFiles(item.getId_i(), "mp3");
 
                     int r = new Random().nextInt(list_file.size());
-                    AudioPlayer.playAudio(getContext(), list_file.get(r).getAbsolute_path());
+                    //AudioPlayer.playAudio(getContext(), list_file.get(r).getAbsolute_path());
+
+
+
+                    SetManagementFragment fragment = new SetManagementFragment();
+
+                    Bundle bundle = new Bundle();
+                    bundle.putLong("id_set", item.getId_i());
+
+                    fragment.setArguments(bundle);
+
+                    requireActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, fragment) // fragment_container = id du container dans le layout
+                            .addToBackStack(null) // optionnel si tu veux revenir en arrière
+                            .commit();
+
+
                 }
             });
 

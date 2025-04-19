@@ -4,6 +4,8 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 import static com.cevague.ankiquiz.R.*;
+import static com.cevague.ankiquiz.utils.ImgUtils.imageFromPath;
+import static com.cevague.ankiquiz.utils.ImgUtils.scaledImageFromPath;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -187,41 +189,6 @@ public class GameQCMFragment extends GameFragmentListener { // implémente OnAns
         imgBtn.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
-    }
-
-    private static Bitmap imageFromPath(String path) {
-        return BitmapFactory.decodeFile(path);
-    }
-
-    public Bitmap scaledImageFromPath(String imagePath, int maxWidth, int maxHeight) {
-        // Charger les dimensions de l'image sans la décoder pour éviter de charger l'image entière en mémoire
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-
-        // Décoder l'image pour obtenir ses dimensions sans créer de Bitmap
-        BitmapFactory.decodeFile(imagePath, options);
-
-        int imgWidth = options.outWidth;
-        int imgHeight = options.outHeight;
-
-        // Calculer les facteurs de mise à l'échelle tout en respectant les proportions
-        int scaleFactor = 1;
-        if (imgWidth > maxWidth || imgHeight > maxHeight) {
-            // Calculer le facteur de mise à l'échelle pour réduire l'image
-            int widthRatio = Math.round((float) imgWidth / (float) maxWidth);
-            int heightRatio = Math.round((float) imgHeight / (float) maxHeight);
-            scaleFactor = Math.max(widthRatio, heightRatio);
-        }
-
-        // Redimensionner l'image avec le facteur de mise à l'échelle
-        options.inJustDecodeBounds = false;
-        options.inSampleSize = scaleFactor;
-
-        // Décoder à nouveau l'image avec les dimensions réduites
-        Bitmap scaledBitmap = BitmapFactory.decodeFile(imagePath, options);
-
-        // Retourner l'image redimensionnée
-        return scaledBitmap;
     }
 
 }

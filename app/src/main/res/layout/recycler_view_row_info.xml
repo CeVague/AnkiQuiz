@@ -50,7 +50,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Animal de la famille des corvidé"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -60,7 +62,6 @@
                         android:gravity="bottom">
 
                         <TextView
-                            android:id="@+id/textViewNbSound"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Nb Mp3 :"
@@ -79,7 +80,6 @@
                             android:layout_weight="1" />
 
                         <TextView
-                            android:id="@+id/textViewNbImg"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Nb Img :"
@@ -98,7 +98,6 @@
                             android:layout_weight="1" />
 
                         <TextView
-                            android:id="@+id/textViewNbTxt"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Nb Txt :"
