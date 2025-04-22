@@ -61,6 +61,7 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
 
         holder.textViewFileName.setText(file.getPath());
 
+        // Choi de l'image selon le type de fichier
         if(file.getType().equals("jpg")){
             Bitmap image = scaledImageFromPath(file.getAbsolute_path(), 300, 300);
             holder.imageViewFile.setImageBitmap(image);
@@ -70,20 +71,23 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
             holder.imageViewFile.setImageResource(R.drawable.ic_launcher_foreground);
         }
 
-        // Gérer le clic en passant l'élément cliqué au Fragment
+        // Gérer le clic (joue le son si c'est un mp3)
         holder.itemView.setOnClickListener(v -> {
             // Démarrer l'animation sur l'élément cliqué
             Animation clickAnimation = AnimationUtils.loadAnimation(v.getContext(), R.anim.clic);
             v.startAnimation(clickAnimation);
-
 
             if(file.getType().equals("mp3")){
                 AudioPlayer.playAudio(context, file.getAbsolute_path());
             }
         });
 
+        // Gestion de la checkbox
         holder.checkBox.setOnClickListener(v -> {
-            listChecked.set(position, holder.checkBox.isChecked());
+            // Récupération dynamique de position
+            int pos = holder.getAdapterPosition();
+            // modifie la liste en conséquence
+            listChecked.set(pos, holder.checkBox.isChecked());
         });
 
         holder.checkBox.setChecked(listChecked.get(position));
@@ -92,6 +96,17 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
     @Override
     public int getItemCount() {
         return listFile.size();
+    }
+
+    // Supprime un fichier et son checked
+    public void deleteFile(FileModel file){
+        int position = listFile.indexOf(file);
+
+        if(position != -1){
+            listFile.remove(position);
+            listChecked.remove(position);
+            notifyItemRemoved(position);
+        }
     }
 
     public ArrayList<FileModel> getCheckedFiles(){
@@ -116,6 +131,10 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
         for(int i=0;i<listFile.size();i++){
             listChecked.set(i, Boolean.FALSE);
         }
+    }
+
+    public boolean isEmpty(){
+        return listFile.isEmpty();
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {

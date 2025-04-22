@@ -406,10 +406,13 @@ public class DBHelper extends SQLiteOpenHelper {
         return card;
     }
 
+    public CardModel getSimpleCard(InfoModel info) {
+        return getSimpleCard(info.getId_i());
+    }
+
 
     public ArrayList<CardModel> getAllCards(String card_set){
         ArrayList<CardModel> listCards = new ArrayList<CardModel>();
-
 
         ArrayList<InfoModel> list_infos = getAllInfo(card_set);
 
@@ -478,6 +481,34 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
 
         return listFiles;
+    }
+
+    public void deleteFile(FileModel file){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_FILES, COL_ID_FILE + " = ?", new String[] { String.valueOf(file.getId_f()) });
+        db.close();
+    }
+
+    public void deleteInfo(InfoModel info){
+        deleteInfo(info.getId_i());
+    }
+
+    public void deleteInfo(long id_info){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_INFOS, COL_ID_INFO + " = ?", new String[] { String.valueOf(id_info) });
+        db.close();
+    }
+
+    public void deleteCardFromInfo(long id_info){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_CARDS, COL_ID_INFO + " = ?", new String[] { String.valueOf(id_info) });
+        db.close();
+    }
+
+    public void deleteCard(CardModel card){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_CARDS, COL_ID_CARD + " = ?", new String[] { String.valueOf(card.getId_c()) });
+        db.close();
     }
 
     public void onReset() {

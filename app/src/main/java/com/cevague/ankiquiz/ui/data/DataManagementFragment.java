@@ -201,7 +201,7 @@ public class DataManagementFragment extends Fragment {
                     SetManagementFragment fragment = new SetManagementFragment();
 
                     Bundle bundle = new Bundle();
-                    bundle.putLong("id_set", item.getId_i());
+                    bundle.putLong("id_info", item.getId_i());
 
                     fragment.setArguments(bundle);
 
