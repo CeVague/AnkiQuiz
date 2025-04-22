@@ -359,7 +359,7 @@ public class DataManagementFragment extends Fragment {
                 }
             }
 
-            actualiseListRV(directory.getName());
+            actualiseListRV(lastSetName);
 
         } else {
             System.out.println("No CSV file found in directory.");
