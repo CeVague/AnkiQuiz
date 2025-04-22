@@ -59,11 +59,11 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
 
         FileModel file = listFile.get(position);
 
-        holder.textViewFileName.setText(file.getPath());
+        holder.textViewFileName.setText(file.getFileName());
 
         // Choi de l'image selon le type de fichier
         if(file.getType().equals("jpg")){
-            Bitmap image = scaledImageFromPath(file.getAbsolute_path(), 300, 300);
+            Bitmap image = scaledImageFromPath(file.getAbsolutePath(context), 300, 300);
             holder.imageViewFile.setImageBitmap(image);
         }else if(file.getType().equals("mp3")){
             holder.imageViewFile.setImageResource(R.drawable.ic_launcher_foreground);
@@ -78,7 +78,7 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
             v.startAnimation(clickAnimation);
 
             if(file.getType().equals("mp3")){
-                AudioPlayer.playAudio(context, file.getAbsolute_path());
+                AudioPlayer.playAudio(context, file.getAbsolutePath(context));
             }
         });
 

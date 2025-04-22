@@ -30,26 +30,20 @@ import com.cevague.ankiquiz.sql.CardModel;
 import com.cevague.ankiquiz.sql.DBHelper;
 import com.cevague.ankiquiz.sql.FileModel;
 import com.cevague.ankiquiz.sql.InfoModel;
-import com.cevague.ankiquiz.utils.AudioPlayer;
 import com.cevague.ankiquiz.utils.ZipUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 public class DataManagementFragment extends Fragment {
 
@@ -58,9 +52,11 @@ public class DataManagementFragment extends Fragment {
 
     String CREATE_NEW;
 
+    String lastSetFolderName, lastSetName;
 
-    Button button_import;
-    Spinner spinner_import;
+
+    Button btnImport, btnImportUrl, btnRename;
+    Spinner spinnerImport;
     private File internalZipFile; // Emplacement du fichier ZIP dans la mémoire interne
 
     // Lanceur pour sélectionner le fichier
@@ -71,7 +67,7 @@ public class DataManagementFragment extends Fragment {
                     if (fileUri != null) {
                         String fileName = getFileName(fileUri);
                         // Copier le fichier dans la mémoire interne et le décompresser
-                        copyFileToInternalStorage(fileUri, fileName, "data/" + spinner_import.getSelectedItem().toString());
+                        copyFileToInternalStorage(fileUri, fileName, "data/" + lastSetFolderName);
                     }
                 }
             });
@@ -81,10 +77,14 @@ public class DataManagementFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_data_management, container, false);
 
+        generateNewSetFolderName();
+
         CREATE_NEW = getResources().getString(R.string.create_dataset);
 
-        button_import = view.findViewById(R.id.button_import_data);
-        spinner_import = view.findViewById(R.id.spinner_import_data);
+        btnImport = view.findViewById(R.id.button_import_data);
+        btnRename = view.findViewById(R.id.button_rename);
+        btnImportUrl = view.findViewById(R.id.button_import_data_url);
+        spinnerImport = view.findViewById(R.id.spinner_import_data);
 
         // Créer un ArrayAdapter avec la liste d'éléments
         adapter = new ArrayAdapter<>(getContext(),
@@ -94,21 +94,23 @@ public class DataManagementFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         // Appliquer l'adaptateur au Spinner
-        spinner_import.setAdapter(adapter);
+        spinnerImport.setAdapter(adapter);
 
-        spinner_import.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spinnerImport.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String str_selected = spinner_import.getSelectedItem().toString();
+                String str_selected = spinnerImport.getSelectedItem().toString();
+                lastSetName = str_selected;
                 if(!str_selected.equals(CREATE_NEW)){
-                    button_import.setEnabled(true);
+                    btnRename.setEnabled(true);
+                    btnImport.setEnabled(true);
+                    btnImportUrl.setEnabled(true);
                     // Si on a selectionné un item, on affiche les datas qu'on a dessus
-                    RecyclerView recyclerView = requireView().findViewById(R.id.recyclerView_data);
-
                     actualiseListRV(str_selected);
-
                 }else{
-                    button_import.setEnabled(false);
+                    btnRename.setEnabled(false);
+                    btnImport.setEnabled(true);
+                    btnImportUrl.setEnabled(true);
                     RecyclerView recyclerView = requireView().findViewById(R.id.recyclerView_data);
                     ArrayList<InfoModel> list_info = new ArrayList<InfoModel>();
                     ArrayList<FileModel> list_file = new ArrayList<FileModel>();
@@ -116,7 +118,9 @@ public class DataManagementFragment extends Fragment {
                     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                     recyclerView.setAdapter(infoRVA);
 
-                    button_import.callOnClick();
+                    lastSetName = spinnerImport.getSelectedItem().toString();
+
+                    createNewDatasetDialog();
                 }
             }
 
@@ -128,54 +132,56 @@ public class DataManagementFragment extends Fragment {
 
         actualiseListDataset();
 
-        button_import.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String spinner_item = spinner_import.getSelectedItem().toString();
-                // Si on cherche a créer un nouveau dataset
-                if(spinner_item.equals(CREATE_NEW)){
+        btnRename.setOnClickListener(v -> {});
 
-                    DialogNewDatasetFragment dialogFragment = new DialogNewDatasetFragment();
-                    dialogFragment.setTextInputListener(new DialogNewDatasetFragment.TextInputListener() {
-                        @Override
-                        public void onTextEntered(String text) {
-                            File data_folder = new File(getContext().getFilesDir(), "data/"+text);
+        btnImport.setOnClickListener(v -> {
+            String spinner_item = spinnerImport.getSelectedItem().toString();
+            // Si on cherche a créer un nouveau dataset
+            if(spinner_item.equals(CREATE_NEW)){
+                createNewDatasetDialog();
+            }else{
+                DBHelper db = new DBHelper(getContext());
+                lastSetFolderName = db.getSetFolderFromSetName(lastSetName);
 
-                            // Vérifie si le dossier existe, sinon le créer
-                            if (!text.isBlank() && isValidString(text)) {
-                                data_folder.mkdirs();
-                                actualiseListDataset();
-                                int i = adapter.getPosition(text);
-                                spinner_import.setSelection(i);
-                                button_import.setEnabled(true);
-                            }else{
-                                Toast.makeText(getContext(), "Ce nom n'est pas valide", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                    dialogFragment.show(getParentFragmentManager(), "TextInputDialog");
-                }else{
-                    // Code de loading d'une BDD
-
-                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                    intent.addCategory(Intent.CATEGORY_OPENABLE);
-                    intent.setType("application/zip");
-                    filePickerLauncher.launch(intent);
+                if(lastSetFolderName == null){
+                    generateNewSetFolderName();
                 }
+
+                // Code de loading d'une BDD
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("application/zip");
+                filePickerLauncher.launch(intent);
             }
         });
 
         return view;
     }
 
+    private void generateNewSetFolderName(){
+        lastSetFolderName = UUID.randomUUID().toString();
+    }
 
+    private void createNewDatasetDialog(){
+        showNewDatasetDialog(s -> {
+            lastSetName = s;
+            actualiseListDataset();
+            int i = adapter.getPosition(s);
+            spinnerImport.setSelection(i);
+        });
+    }
 
-    private static boolean isValidString(String input) {
-        // Expression régulière pour vérifier les caractères autorisés
-        String regex = "^[a-zA-Z0-9 _]*$";
-
-        // Vérification de la chaîne par rapport à l'expression régulière
-        return input.matches(regex);
+    private void showNewDatasetDialog(Consumer<String> callback){
+        generateNewSetFolderName();
+        DialogNewDatasetFragment dialogFragment = new DialogNewDatasetFragment();
+        dialogFragment.setTextInputListener(text -> {
+            if (!text.isBlank()) {
+                callback.accept(text);
+            }else{
+                Toast.makeText(getContext(), "Ce nom n'est pas valide", Toast.LENGTH_SHORT).show();
+            }
+        });
+        dialogFragment.show(getParentFragmentManager(), "TextInputDialog");
     }
 
     private void actualiseListRV(String str_selected){
@@ -223,21 +229,15 @@ public class DataManagementFragment extends Fragment {
     private void actualiseListDataset(){
         adapter.clear();
 
-        File data_folder = new File(getContext().getFilesDir(), "data/");
-
-        // Vérifie si le dossier existe, sinon le créer
-        if (!data_folder.exists()) {
-            data_folder.mkdirs();
+        ArrayList<String> listCardSetNames;
+        try (DBHelper db = new DBHelper(getContext())) {
+            listCardSetNames = db.getAllCardSet();
         }
 
-        // Liste des dossiers
-        File[] files = data_folder.listFiles();
-        if(files != null){
-            for(File file : files) {
-                if(file.isDirectory()){
-                    adapter.add(file.getName());
-                }
-            }
+        adapter.addAll(listCardSetNames);
+
+        if(lastSetName != null && !listCardSetNames.contains(lastSetName)){
+            adapter.add(lastSetName);
         }
 
         adapter.add(CREATE_NEW);
@@ -331,7 +331,7 @@ public class DataManagementFragment extends Fragment {
                     String[] fields = (line + "; ").split(";");
 
                     // Création et/ou ajout d'un info la à DB
-                    InfoModel info_tmp = new InfoModel(-1, directory.getName(), fields[0], fields[1], fields[2], fields[3], fields[4]);
+                    InfoModel info_tmp = new InfoModel(-1, lastSetName, fields[0], fields[1], fields[2], fields[3], fields[4]);
 
                     InfoModel info = getOrCreateInfo(info_tmp);
                     Log.i("Populate DB", info.toString());
@@ -342,7 +342,7 @@ public class DataManagementFragment extends Fragment {
 
 
                     // Check files in their folder
-                    File path_card = new File(requireContext().getFilesDir(), "data/"+info.getCard_set()+"/"+info.getFolder());
+                    File path_card = new File(requireContext().getFilesDir(), "data/"+lastSetFolderName+"/"+info.getFolder());
 
                     File[] list_files = path_card.listFiles();
                     if(list_files != null){
@@ -350,7 +350,7 @@ public class DataManagementFragment extends Fragment {
 
                             String type = file.getName().substring(file.getName().length()-3);
 
-                            FileModel file_tmp = new FileModel(-1, info.getId_i(), info.getCard_set(), file.getName(), path_card + "/" + file.getName(), type);
+                            FileModel file_tmp = new FileModel(-1, info.getId_i(), info.getCard_set(), lastSetFolderName, info.getFolder(), file.getName(), type);
                             addFileDB(file_tmp);
                             Log.i("Populate DB", file_tmp.toString());
                         }

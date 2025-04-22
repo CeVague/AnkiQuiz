@@ -59,7 +59,7 @@ public class GameScrabbleFragment extends GameFragmentListener {
             question = getArguments().getParcelable("question");
             Log.d("GameScrabbleFragment", "Valeur reçue question : " + question);
 
-            answer = ((FileModel) getArguments().getParcelable("answer")).getAbsolute_path();
+            answer = ((FileModel) getArguments().getParcelable("answer")).getFileName();
             Log.d("GameScrabbleFragment", "Valeur reçue answer : " + answer);
 
             answerChoices = getArguments().getParcelableArrayList("answerChoices");
@@ -85,18 +85,18 @@ public class GameScrabbleFragment extends GameFragmentListener {
         // Gestion de la question et de son affichage
         switch (question.getType()){
             case "jpg":
-                Bitmap bitmap = imageFromPath(question.getAbsolute_path());
+                Bitmap bitmap = imageFromPath(question.getAbsolutePath(requireContext()));
                 imgQuestion.setImageBitmap(bitmap);
                 imgQuestion.setVisibility(VISIBLE);
                 imgQuestion.setOnClickListener(v -> showImagePopup(getContext(), bitmap));
                 break;
             case "mp3":
                 sndQuestion.setVisibility(VISIBLE);
-                sndQuestion.setOnClickListener(v -> AudioPlayer.playAudio(getContext(), question.getAbsolute_path()));
+                sndQuestion.setOnClickListener(v -> AudioPlayer.playAudio(getContext(), question.getAbsolutePath(requireContext())));
                 sndQuestion.callOnClick();
                 break;
             default:
-                txtQuestion.setText(question.getAbsolute_path());
+                txtQuestion.setText(question.getFileName());
                 txtQuestion.setVisibility(VISIBLE);
         }
 
@@ -116,7 +116,7 @@ public class GameScrabbleFragment extends GameFragmentListener {
         // Création d'une liste de mauvaises réponses
         List<String> otherCharacters = new ArrayList<>();
         for(FileModel file : answerChoices){
-            otherCharacters.addAll(stringToStrings(file.getAbsolute_path(), chunkSize));
+            otherCharacters.addAll(stringToStrings(file.getFileName(), chunkSize));
         }
         Collections.shuffle(otherCharacters);
 

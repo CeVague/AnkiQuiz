@@ -30,7 +30,7 @@
                 android:weightSum="3" >
 
                 <Button
-                    android:id="@+id/button"
+                    android:id="@+id/button_rename"
                     android:layout_width="0dp"
                     android:layout_height="fill_parent"
                     android:layout_weight="1"

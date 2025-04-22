@@ -36,8 +36,9 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static final String TABLE_FILES = "files";
     private static final String COL_ID_FILE = "id_f";
-    private static final String COL_PATH = "path";
-    private static final String COL_ABSOLUTE_PATH = "abs_path";
+    private static final String COL_SET_FOLDER = "set_folder";
+    private static final String COL_CARD_FOLDER = "card_folder";
+    private static final String COL_FILE_NAME = "file_name";
     private static final String COL_TYPE = "type";
 
 
@@ -71,8 +72,9 @@ public class DBHelper extends SQLiteOpenHelper {
                 + COL_ID_FILE + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COL_ID_INFO + " INTEGER NOT NULL,"
                 + COL_CARD_SET + " TEXT NOT NULL,"
-                + COL_PATH + " TEXT NOT NULL,"
-                + COL_ABSOLUTE_PATH + " TEXT NOT NULL,"
+                + COL_SET_FOLDER + " TEXT NOT NULL,"
+                + COL_CARD_FOLDER + " TEXT NOT NULL,"
+                + COL_FILE_NAME + " TEXT NOT NULL,"
                 + COL_TYPE + " TEXT NOT NULL,"
                 + "FOREIGN KEY(" + COL_ID_INFO + ") REFERENCES " + TABLE_INFOS + "(" + COL_ID_INFO + "))";
 
@@ -214,8 +216,10 @@ public class DBHelper extends SQLiteOpenHelper {
     public boolean existFile(FileModel file){
         String request =
                 "SELECT * FROM " + TABLE_FILES
-                        + " WHERE " + COL_PATH + " == '" + file.getPath() + "'"
-                        + " AND " + COL_ID_INFO + " == " + file.getId_i();
+                        + " WHERE " + COL_FILE_NAME + " == '" + file.getFileName() + "'"
+                        + " AND " + COL_SET_FOLDER + " == '" + file.getSetFolder() + "'"
+                        + " AND " + COL_CARD_FOLDER + " == '" + file.getCardFolder() + "'"
+                        + " AND " + COL_ID_INFO + " == " + file.getIdI();
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(request, null);
@@ -233,10 +237,11 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(COL_ID_INFO, file.getId_i());
-        values.put(COL_CARD_SET, file.getCard_set());
-        values.put(COL_PATH, file.getPath());
-        values.put(COL_ABSOLUTE_PATH, file.getAbsolute_path());
+        values.put(COL_ID_INFO, file.getIdI());
+        values.put(COL_CARD_SET, file.getCardSet());
+        values.put(COL_SET_FOLDER, file.getSetFolder());
+        values.put(COL_CARD_FOLDER, file.getCardFolder());
+        values.put(COL_FILE_NAME, file.getFileName());
         values.put(COL_TYPE, file.getType());
 
         long id = db.insert(TABLE_FILES, null, values);
@@ -268,12 +273,13 @@ public class DBHelper extends SQLiteOpenHelper {
         if(cursor.moveToFirst()){
             do{
                 FileModel file = new FileModel();
-                file.setId_f(cursor.getLong(0));
-                file.setId_i(cursor.getLong(1));
-                file.setCard_set(cursor.getString(2));
-                file.setPath(cursor.getString(3));
-                file.setAbsolute_path(cursor.getString(4));
-                file.setType(cursor.getString(5));
+                file.setIdF(cursor.getLong(0));
+                file.setIdI(cursor.getLong(1));
+                file.setCardSet(cursor.getString(2));
+                file.setSetFolder(cursor.getString(3));
+                file.setCardFolder(cursor.getString(4));
+                file.setFileName(cursor.getString(5));
+                file.setType(cursor.getString(6));
 
                 listFiles.add(file);
             }while(cursor.moveToNext());
@@ -307,12 +313,13 @@ public class DBHelper extends SQLiteOpenHelper {
         if(cursor.moveToFirst()){
             do{
                 FileModel file = new FileModel();
-                file.setId_f(cursor.getLong(0));
-                file.setId_i(cursor.getLong(1));
-                file.setCard_set(cursor.getString(2));
-                file.setPath(cursor.getString(3));
-                file.setAbsolute_path(cursor.getString(4));
-                file.setType(cursor.getString(5));
+                file.setIdF(cursor.getLong(0));
+                file.setIdI(cursor.getLong(1));
+                file.setCardSet(cursor.getString(2));
+                file.setSetFolder(cursor.getString(3));
+                file.setCardFolder(cursor.getString(4));
+                file.setFileName(cursor.getString(5));
+                file.setType(cursor.getString(6));
 
                 listFiles.add(file);
             }while(cursor.moveToNext());
@@ -483,9 +490,27 @@ public class DBHelper extends SQLiteOpenHelper {
         return listFiles;
     }
 
+    public String getSetFolderFromSetName(String setName){
+        String setFolder = null;
+
+        String request = "SELECT " + COL_SET_FOLDER + " FROM " + TABLE_FILES
+                + " WHERE " + COL_CARD_SET + " = ?";
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(request, new String[]{setName});
+        if(cursor.getCount() > 0) {
+            cursor.moveToFirst();
+
+            setFolder = cursor.getString(0);
+        }
+        cursor.close();
+
+        return setFolder;
+    }
+
     public void deleteFile(FileModel file){
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_FILES, COL_ID_FILE + " = ?", new String[] { String.valueOf(file.getId_f()) });
+        db.delete(TABLE_FILES, COL_ID_FILE + " = ?", new String[] { String.valueOf(file.getIdF()) });
         db.close();
     }
 

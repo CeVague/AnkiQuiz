@@ -86,7 +86,7 @@ public class InfoRecyclerViewAdapter extends RecyclerView.Adapter<InfoRecyclerVi
         int nb = 0;
 
         for(FileModel file : list_file){
-            if(file.getType().equals(type) && (file.getId_i() == id_i)){
+            if(file.getType().equals(type) && (file.getIdI() == id_i)){
                 nb++;
             }
         }

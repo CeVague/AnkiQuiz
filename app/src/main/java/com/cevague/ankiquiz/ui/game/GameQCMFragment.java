@@ -88,18 +88,18 @@ public class GameQCMFragment extends GameFragmentListener { // implémente OnAns
         // Gestion de la question et de son affichage
         switch (question.getType()){
             case "jpg":
-                Bitmap bitmap = BitmapFactory.decodeFile(question.getAbsolute_path());
+                Bitmap bitmap = BitmapFactory.decodeFile(question.getAbsolutePath(requireContext()));
                 imgQuestion.setImageBitmap(bitmap);
                 imgQuestion.setVisibility(VISIBLE);
                 imgQuestion.setOnClickListener(v -> showImagePopup(getContext(), bitmap));
                 break;
             case "mp3":
                 sndQuestion.setVisibility(VISIBLE);
-                sndQuestion.setOnClickListener(v -> AudioPlayer.playAudio(getContext(), question.getAbsolute_path()));
+                sndQuestion.setOnClickListener(v -> AudioPlayer.playAudio(getContext(), question.getAbsolutePath(requireContext())));
                 sndQuestion.callOnClick();
                 break;
             default:
-                txtQuestion.setText(question.getAbsolute_path());
+                txtQuestion.setText(question.getFileName());
                 txtQuestion.setVisibility(VISIBLE);
         }
 
@@ -115,7 +115,7 @@ public class GameQCMFragment extends GameFragmentListener { // implémente OnAns
             // Si les réponses sont des images, on veut un bouton img spécifiques
             if(answer.getType().equals("jpg")){
                 // Convertir le chemin en Bitmap
-                String path = answerChoices.get(i).getAbsolute_path();
+                String path = answerChoices.get(i).getAbsolutePath(requireContext());
                 Bitmap smallBitmap = scaledImageFromPath(path, 400, 300);
 
                 // L'appliquer au bouton
@@ -136,7 +136,7 @@ public class GameQCMFragment extends GameFragmentListener { // implémente OnAns
 
             // Si les réponses sont du texte, on veut un bouton classique
             }else{
-                btnAnswers[i].setText(answerChoices.get(i).getAbsolute_path());
+                btnAnswers[i].setText(answerChoices.get(i).getFileName());
             }
 
             if(i == goodAnswer){

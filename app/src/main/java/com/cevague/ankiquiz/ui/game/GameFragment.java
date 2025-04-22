@@ -196,7 +196,7 @@ public class GameFragment extends Fragment {
 
 
     private FileModel stringToFile(String txt){
-        return new FileModel(-1, -1, null, txt, txt, "txt");
+        return new FileModel(-1, -1, null, null, null, txt, "txt");
     }
 
     private ArrayList<CardModel> getAnswerList(ArrayList<CardModel> cardList, CardModel question){
