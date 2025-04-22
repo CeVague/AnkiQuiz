@@ -22,6 +22,7 @@ public class DialogNewDatasetFragment extends DialogFragment {
 
     Button btn_cancel, btn_add;
     EditText edt_name;
+    String btnAddText;
 
     public interface TextInputListener {
         void onTextEntered(String text);
@@ -31,6 +32,10 @@ public class DialogNewDatasetFragment extends DialogFragment {
 
     public void setTextInputListener(TextInputListener listener) {
         this.listener = listener;
+    }
+
+    public void setBtnAddText(String btnAddText){
+        this.btnAddText = btnAddText;
     }
 
     @NonNull
@@ -86,6 +91,7 @@ public class DialogNewDatasetFragment extends DialogFragment {
             }
         });
 
+
         btn_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -95,6 +101,8 @@ public class DialogNewDatasetFragment extends DialogFragment {
                 getDialog().dismiss();
             }
         });
+
+        btn_add.setText(btnAddText);
 
         builder.setView(view);
 

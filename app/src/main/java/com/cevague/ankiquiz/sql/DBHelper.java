@@ -161,19 +161,17 @@ public class DBHelper extends SQLiteOpenHelper {
         return tmp;
     }
 
-    public ArrayList<InfoModel> getAllInfo(String card_set){
-        ArrayList<InfoModel> listInfo = new ArrayList<InfoModel>();
+    public ArrayList<InfoModel> getAllInfo(String card_set) {
+        ArrayList<InfoModel> listInfo = new ArrayList<>();
 
-        String request =
-                "SELECT * FROM " + TABLE_INFOS +
-                        " WHERE "+COL_CARD_SET+" == '" + card_set + "'";
+        String request = "SELECT * FROM " + TABLE_INFOS + " WHERE " + COL_CARD_SET + " = ?";
 
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.rawQuery(request, null);
+        Cursor cursor = db.rawQuery(request, new String[]{card_set});
 
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 InfoModel info = new InfoModel();
                 info.setId_i(cursor.getLong(0));
                 info.setCard_set(cursor.getString(1));
@@ -182,10 +180,10 @@ public class DBHelper extends SQLiteOpenHelper {
                 info.setHint(cursor.getString(4));
                 info.setDescription(cursor.getString(5));
                 info.setImg_path(cursor.getString(6));
-                info.setImg_absolute_path();
+                info.setImg_absolute_path(); // j’imagine que ça s’auto-calcule
 
                 listInfo.add(info);
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
 
         cursor.close();
@@ -193,6 +191,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         return listInfo;
     }
+
 
     public long addInfo(InfoModel info){
         SQLiteDatabase db = this.getWritableDatabase();
@@ -533,6 +532,29 @@ public class DBHelper extends SQLiteOpenHelper {
     public void deleteCard(CardModel card){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_CARDS, COL_ID_CARD + " = ?", new String[] { String.valueOf(card.getId_c()) });
+        db.close();
+    }
+
+    public void renameCardSet(String oldName, String newName){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COL_CARD_SET, newName);
+
+        db.update(
+                TABLE_FILES,            // nom de la table
+                values,                   // les nouvelles valeurs
+                COL_CARD_SET + " = ?",         // WHERE clause
+                new String[]{oldName}   // arguments
+        );
+
+        db.update(
+                TABLE_INFOS,            // nom de la table
+                values,                   // les nouvelles valeurs
+                COL_CARD_SET + " = ?",         // WHERE clause
+                new String[]{oldName}   // arguments
+        );
+
         db.close();
     }
 

@@ -132,7 +132,19 @@ public class DataManagementFragment extends Fragment {
 
         actualiseListDataset();
 
-        btnRename.setOnClickListener(v -> {});
+        btnRename.setOnClickListener(v -> {
+            showNewDatasetDialog(s -> {
+                String oldName = spinnerImport.getSelectedItem().toString();
+                String newName = s;
+
+                try (DBHelper db = new DBHelper(getContext())) {
+                    db.renameCardSet(oldName, newName);
+                }
+
+                actualiseListDataset();
+
+            }, getResources().getString(R.string.rename));
+        });
 
         btnImport.setOnClickListener(v -> {
             String spinner_item = spinnerImport.getSelectedItem().toString();
@@ -168,12 +180,13 @@ public class DataManagementFragment extends Fragment {
             actualiseListDataset();
             int i = adapter.getPosition(s);
             spinnerImport.setSelection(i);
-        });
+        }, getResources().getString(R.string.add));
     }
 
-    private void showNewDatasetDialog(Consumer<String> callback){
+    private void showNewDatasetDialog(Consumer<String> callback, String validation){
         generateNewSetFolderName();
         DialogNewDatasetFragment dialogFragment = new DialogNewDatasetFragment();
+        dialogFragment.setBtnAddText(validation);
         dialogFragment.setTextInputListener(text -> {
             if (!text.isBlank()) {
                 callback.accept(text);
