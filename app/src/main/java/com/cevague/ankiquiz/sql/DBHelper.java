@@ -122,11 +122,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
         String request =
                 "SELECT * FROM " + TABLE_INFOS
-                        + " WHERE " + COL_FOLDER + " == '" + folder + "'"
-                        + " AND " + COL_CARD_SET + " == '" + card_set + "'";
+                        + " WHERE " + COL_FOLDER + " == ?"
+                        + " AND " + COL_CARD_SET + " == ?";
 
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(request, null);
+        Cursor cursor = db.rawQuery(request, new String[]{folder, card_set});
         if(cursor.getCount() > 0) {
             cursor.moveToFirst();
 
@@ -147,11 +147,11 @@ public class DBHelper extends SQLiteOpenHelper {
     public boolean existInfo(String card_set, String folder){
         String request =
                 "SELECT * FROM " + TABLE_INFOS
-                        + " WHERE " + COL_FOLDER + " == '" + folder + "'"
-                        + " AND " + COL_CARD_SET + " == '" + card_set + "'";
+                        + " WHERE " + COL_FOLDER + " == ?"
+                        + " AND " + COL_CARD_SET + " == ?";
 
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(request, null);
+        Cursor cursor = db.rawQuery(request, new String[]{folder, card_set});
 
         boolean tmp = cursor.getCount() > 0;
 
@@ -259,7 +259,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         String request =
                 "SELECT * FROM " + TABLE_FILES +
-                        " WHERE "+COL_CARD_SET+" == '" + card_set + "'";
+                        " WHERE "+COL_CARD_SET+" == ?";
 
         if(!type.isEmpty()){
             request += " AND "+COL_TYPE+" == '" + type +"'";
@@ -267,7 +267,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getReadableDatabase();
 
-        Cursor cursor = db.rawQuery(request, null);
+        Cursor cursor = db.rawQuery(request, new String[]{card_set});
 
         if(cursor.moveToFirst()){
             do{
