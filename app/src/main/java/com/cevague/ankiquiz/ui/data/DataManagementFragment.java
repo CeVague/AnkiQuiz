@@ -32,12 +32,20 @@ import com.cevague.ankiquiz.sql.FileModel;
 import com.cevague.ankiquiz.sql.InfoModel;
 import com.cevague.ankiquiz.utils.ZipUtils;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
@@ -210,13 +218,6 @@ public class DataManagementFragment extends Fragment {
             infoRVA.setOnItemClickListener(new InfoRecyclerViewAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(InfoModel item) {
-                    ArrayList<FileModel> list_file = db.getAllFiles(item.getId_i(), "mp3");
-
-                    int r = new Random().nextInt(list_file.size());
-                    //AudioPlayer.playAudio(getContext(), list_file.get(r).getAbsolute_path());
-
-
-
                     SetManagementFragment fragment = new SetManagementFragment();
 
                     Bundle bundle = new Bundle();
@@ -229,8 +230,6 @@ public class DataManagementFragment extends Fragment {
                             .replace(R.id.fragment_container, fragment) // fragment_container = id du container dans le layout
                             .addToBackStack(null) // optionnel si tu veux revenir en arrière
                             .commit();
-
-
                 }
             });
 
@@ -319,61 +318,68 @@ public class DataManagementFragment extends Fragment {
             // Delete old zip
             internalZipFile.delete();
             // populate db
-            readCSVFile(output_file);
+            readJsonFile(output_file);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(getContext(), "Erreur de copie", Toast.LENGTH_SHORT).show();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Erreur de Json", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void readCSVFile(File directory) throws IOException {
+    private void readJsonFile(File directory) throws IOException, JSONException {
+        // Récupère les deux lettre de la langue utilisateur
         String locale = Locale.getDefault().getLanguage();
-        File[] files = directory.listFiles((dir, name) -> name.equals(locale+".csv"));
 
-        if(files == null || files.length == 0){
-            files = directory.listFiles((dir, name) -> name.equals("en.csv"));
+        // Récupération du fichier Json de la bonne langue ou en par défaut
+        File metaFile = new File(directory.getAbsolutePath(), locale+".json");
+
+        if(!metaFile.exists()){
+            metaFile = new File(directory.getAbsolutePath(), "en.json");
         }
 
-        if (files != null && files.length > 0) {
-            File csvFile = files[0];
-            try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
-                br.readLine();
+        if(metaFile.exists()){
 
-                String line;
-                while ((line = br.readLine()) != null) {
-                    String[] fields = (line + "; ").split(";");
+            String jsonContent = readFileToString(metaFile);
 
-                    // Création et/ou ajout d'un info la à DB
-                    InfoModel info_tmp = new InfoModel(-1, lastSetName, fields[0], fields[1], fields[2], fields[3], fields[4]);
+            JSONArray array = new JSONArray(jsonContent);
 
-                    InfoModel info = getOrCreateInfo(info_tmp);
-                    Log.i("Populate DB", info.toString());
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
 
-                    // Ajout des cards
-                    CardModel card_tmp = new CardModel(info, 0, Calendar.getInstance().getTime());
-                    createCard(card_tmp);
+                String folder = obj.getString("folder");
+                String name = obj.getString("name");
+                String hint = obj.optString("hint");
+                String description = obj.optString("description");
+                String img = obj.optString("img");
+
+                InfoModel info_tmp = new InfoModel(-1, lastSetName, folder, name, hint, description, img);
+
+                InfoModel info = getOrCreateInfo(info_tmp);
+                Log.i("Populate DB", info.toString());
+
+                // Ajout des cards
+                CardModel card_tmp = new CardModel(info, 0, Calendar.getInstance().getTime());
+                createCard(card_tmp);
 
 
-                    // Check files in their folder
-                    File path_card = new File(requireContext().getFilesDir(), "data/"+lastSetFolderName+"/"+info.getFolder());
+                // Check files in their folder
+                File path_card = new File(requireContext().getFilesDir(), "data/"+lastSetFolderName+"/"+info.getFolder());
 
-                    File[] list_files = path_card.listFiles();
-                    if(list_files != null){
-                        for(File file : list_files){
+                File[] list_files = path_card.listFiles();
+                if(list_files != null){
+                    for(File file : list_files){
 
-                            String type = file.getName().substring(file.getName().length()-3);
+                        String type = file.getName().substring(file.getName().length()-3);
 
-                            FileModel file_tmp = new FileModel(-1, info.getId_i(), info.getCard_set(), lastSetFolderName, info.getFolder(), file.getName(), type);
-                            addFileDB(file_tmp);
-                            Log.i("Populate DB", file_tmp.toString());
-                        }
+                        FileModel file_tmp = new FileModel(-1, info.getId_i(), info.getCard_set(), lastSetFolderName, info.getFolder(), file.getName(), type);
+                        addFileDB(file_tmp);
+                        Log.i("Populate DB", file_tmp.toString());
                     }
-
                 }
             }
-
             actualiseListRV(lastSetName);
-
         } else {
             System.out.println("No CSV file found in directory.");
         }
@@ -407,6 +413,27 @@ public class DataManagementFragment extends Fragment {
             if (!db.existFile(file)) {
                 db.addFile(file);
             }
+        }
+    }
+
+    public String readFileToString(File file) {
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
+            BufferedReader reader = new BufferedReader(isr);
+
+            StringBuilder builder = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                builder.append(line).append("\n");
+            }
+
+            reader.close();
+            return builder.toString().trim(); // trim() pour virer le dernier \n
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
