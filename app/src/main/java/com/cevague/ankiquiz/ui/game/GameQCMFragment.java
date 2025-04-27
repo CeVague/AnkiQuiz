@@ -88,7 +88,7 @@ public class GameQCMFragment extends GameFragmentListener { // implémente OnAns
         // Gestion de la question et de son affichage
         switch (question.getType()){
             case "jpg":
-                Bitmap bitmap = BitmapFactory.decodeFile(question.getAbsolutePath(requireContext()));
+                Bitmap bitmap = imageFromPath(question.getAbsolutePath(requireContext()));
                 imgQuestion.setImageBitmap(bitmap);
                 imgQuestion.setVisibility(VISIBLE);
                 imgQuestion.setOnClickListener(v -> showImagePopup(getContext(), bitmap));

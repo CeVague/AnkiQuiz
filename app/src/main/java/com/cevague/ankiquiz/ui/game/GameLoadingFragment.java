@@ -16,6 +16,8 @@ import android.widget.TextView;
 import com.cevague.ankiquiz.R;
 import com.cevague.ankiquiz.sql.CardModel;
 import com.cevague.ankiquiz.sql.DBHelper;
+import com.cevague.ankiquiz.sql.FileModel;
+import com.cevague.ankiquiz.utils.ImgUtils;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
 import java.util.ArrayList;
@@ -62,7 +64,7 @@ public class GameLoadingFragment extends Fragment {
         progressBar.setProgressMax(1000);
 
         // Compte a rebourd qui, a la fin, récupère le résultat du chargement
-        countDown = new CountDownTimer(1000, 10) {
+        countDown = new CountDownTimer(2000, 10) {
             public void onTick(long millisUntilFinished) {
                 int progress = (int) (millisUntilFinished +1000) % 2000 ;
                 progressBar.setProgress(Math.abs(1000-progress));
@@ -116,6 +118,17 @@ public class GameLoadingFragment extends Fragment {
             // Chaque carte doit faire chaque jeux
             for(int i=0;i<set.size();i++){
                 set.get(i).setGame_type(new boolean[]{true, true, true, true, true, true, true, true, true});
+            }
+
+            // Initialisation du cache
+            ImgUtils.init();
+
+            // Préchargement de toutes les images
+            for(CardModel card : set){
+                for(FileModel file : card.getImages()){
+                    ImgUtils.preloadImageFromPath(file.getAbsolutePath(requireContext()));
+                    ImgUtils.preloadScaledImageFromPath(file.getAbsolutePath(requireContext()), 300, 300);
+                }
             }
 
             return set;
