@@ -64,7 +64,7 @@ public class GameLoadingFragment extends Fragment {
         progressBar.setProgressMax(1000);
 
         // Compte a rebourd qui, a la fin, récupère le résultat du chargement
-        countDown = new CountDownTimer(2000, 10) {
+        countDown = new CountDownTimer(1000, 10) {
             public void onTick(long millisUntilFinished) {
                 int progress = (int) (millisUntilFinished +1000) % 2000 ;
                 progressBar.setProgress(Math.abs(1000-progress));

@@ -1,5 +1,7 @@
 package com.cevague.ankiquiz.ui.data;
 
+import static com.cevague.ankiquiz.utils.ImgUtils.imageFromPath;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -63,7 +65,7 @@ public class InfoRecyclerViewAdapter extends RecyclerView.Adapter<InfoRecyclerVi
         File directory = context.getFilesDir(); // Récupère le répertoire privé de l'application
         File imageFile = new File(directory, info.getImg_absolute_path());
         if (imageFile.exists() && imageFile.isFile()) {
-            Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+            Bitmap bitmap = imageFromPath(imageFile.getAbsolutePath());
             holder.image_view.setImageBitmap(bitmap);
         } else {
             // Image par défaut si le fichier n'existe pas

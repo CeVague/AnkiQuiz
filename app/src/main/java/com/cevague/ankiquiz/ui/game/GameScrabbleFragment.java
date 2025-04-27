@@ -5,6 +5,7 @@ import static android.view.View.VISIBLE;
 import static com.cevague.ankiquiz.R.color;
 import static com.cevague.ankiquiz.R.id;
 import static com.cevague.ankiquiz.R.layout;
+import static com.cevague.ankiquiz.utils.ImgUtils.imageFromPath;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -177,10 +178,6 @@ public class GameScrabbleFragment extends GameFragmentListener {
         imgBtn.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
-    }
-
-    private static Bitmap imageFromPath(String path) {
-        return BitmapFactory.decodeFile(path);
     }
 
     private static List<String> stringToStrings(String str, int chunkSize){
