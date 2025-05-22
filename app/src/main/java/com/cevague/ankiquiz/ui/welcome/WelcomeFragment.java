@@ -17,6 +17,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.cevague.ankiquiz.BuildConfig;
 import com.cevague.ankiquiz.R;
 import com.cevague.ankiquiz.sql.DBHelper;
 import com.cevague.ankiquiz.ui.data.DataManagementFragment;
@@ -72,6 +73,11 @@ public class WelcomeFragment extends Fragment {
                 }
             }
         });
+
+
+        if (!BuildConfig.DEBUG) {
+            buttonReset.setVisibility(View.GONE);
+        }
 
         return view;
     }
