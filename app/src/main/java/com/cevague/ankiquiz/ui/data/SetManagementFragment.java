@@ -111,4 +111,10 @@ public class SetManagementFragment extends Fragment {
 
         return view;
     }
+
+    @Override
+    public void onStop(){
+        AudioPlayer.stopAudio();
+        super.onStop();
+    }
 }

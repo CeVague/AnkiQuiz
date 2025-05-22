@@ -76,7 +76,6 @@ public class WelcomeFragment extends Fragment {
         return view;
     }
 
-
     private void startPulseAnimation(View view) {
         ObjectAnimator scaleDown = ObjectAnimator.ofPropertyValuesHolder(
                 view,

@@ -9,12 +9,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ImgUtils {
 
+    private static boolean isInit = false;
     private static HashMap<String, Bitmap> imageDict;
     private static HashMap<String, Bitmap> scaledImageDict;
 
     public static void init(){
-        imageDict = new HashMap<>();
-        scaledImageDict = new HashMap<>();
+        if(!isInit) {
+            imageDict = new HashMap<>();
+            scaledImageDict = new HashMap<>();
+            isInit = true;
+        }
     }
 
     public static void preloadImageFromPath(String imagePath) {

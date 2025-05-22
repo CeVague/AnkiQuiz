@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.cevague.ankiquiz.ui.data.DataManagementFragment;
 import com.cevague.ankiquiz.ui.welcome.WelcomeFragment;
+import com.cevague.ankiquiz.utils.ImgUtils;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        ImgUtils.init();
 
         addFragment(new WelcomeFragment(), false);
     }
