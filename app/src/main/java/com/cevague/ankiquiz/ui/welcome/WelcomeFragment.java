@@ -77,6 +77,7 @@ public class WelcomeFragment extends Fragment {
 
         if (!BuildConfig.DEBUG) {
             buttonReset.setVisibility(View.GONE);
+            startPulseAnimation(view);
         }
 
         return view;
