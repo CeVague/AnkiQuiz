@@ -12,19 +12,15 @@ import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.cevague.ankiquiz.BuildConfig;
 import com.cevague.ankiquiz.R;
 import com.cevague.ankiquiz.sql.DBHelper;
-import com.cevague.ankiquiz.ui.data.DataManagementFragment;
 import com.cevague.ankiquiz.ui.selection.SelectionFragment;
 
 import java.util.Calendar;
-import java.util.Date;
 
 public class WelcomeFragment extends Fragment {
 
@@ -38,10 +34,6 @@ public class WelcomeFragment extends Fragment {
 
         buttonPlay = view.findViewById(R.id.button_play);
         buttonReset = view.findViewById(R.id.button_reset);
-
-        // startPulseAnimation(buttonPlay);
-
-
 
         buttonPlay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,7 +55,6 @@ public class WelcomeFragment extends Fragment {
             }
         });
 
-
         buttonReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,7 +64,6 @@ public class WelcomeFragment extends Fragment {
                 }
             }
         });
-
 
         if (!BuildConfig.DEBUG) {
             buttonReset.setVisibility(View.GONE);
