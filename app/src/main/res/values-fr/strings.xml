@@ -13,4 +13,5 @@
     <string name="next">Suivant</string>
     <string name="validate">Valider</string>
     <string name="import_online_dataset">Importer depuis une URL</string>
+    <string name="delete">Supprimer</string>
 </resources>

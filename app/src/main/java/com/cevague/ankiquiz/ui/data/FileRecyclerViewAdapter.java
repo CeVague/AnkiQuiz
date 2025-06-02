@@ -36,6 +36,16 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
     ArrayList<Boolean> listChecked;
 
 
+
+    public interface OnItemSelectedListener{
+        void itemSelected(int nb);
+    }
+    OnItemSelectedListener itemSelectedListener;
+
+    public void setOnItemSelected (OnItemSelectedListener itemSelectedListener){
+        this.itemSelectedListener = itemSelectedListener;
+    }
+
     public FileRecyclerViewAdapter(Context context, ArrayList<FileModel> listFile) {
         this.context = context;
         this.listFile = listFile;
@@ -88,6 +98,15 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
             int pos = holder.getAdapterPosition();
             // modifie la liste en conséquence
             listChecked.set(pos, holder.checkBox.isChecked());
+
+            int count = 0;
+            for (Boolean b : listChecked) {
+                if (b != null && b) {
+                    count++;
+                }
+            }
+
+            itemSelectedListener.itemSelected(count);
         });
 
         holder.checkBox.setChecked(listChecked.get(position));
@@ -125,12 +144,14 @@ public class FileRecyclerViewAdapter extends RecyclerView.Adapter<FileRecyclerVi
         for(int i=0;i<listFile.size();i++){
             listChecked.set(i, Boolean.TRUE);
         }
+        itemSelectedListener.itemSelected(listChecked.size());
     }
 
     public void checkNone(){
         for(int i=0;i<listFile.size();i++){
             listChecked.set(i, Boolean.FALSE);
         }
+        itemSelectedListener.itemSelected(0);
     }
 
     public boolean isEmpty(){

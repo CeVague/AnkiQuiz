@@ -109,6 +109,51 @@ public class SetManagementFragment extends Fragment {
 
         });
 
+
+
+        Animation slideUpAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
+        Animation slideDownAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.slide_down);
+
+        fileRVA.setOnItemSelected(nb -> {
+            if(nb != 0 && btnDelete.getVisibility() == View.GONE){
+                btnDelete.startAnimation(slideUpAnimation);
+
+                // Rendre le bouton invisible après l'animation
+                slideUpAnimation.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        btnDelete.setVisibility(View.VISIBLE);
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {}
+                });
+            }else if (nb == 0 && btnDelete.getVisibility() == View.VISIBLE){
+                btnDelete.startAnimation(slideDownAnimation);
+
+                // Rendre le bouton invisible après l'animation
+                slideDownAnimation.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        btnDelete.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {}
+                });
+            }
+        });
+
         return view;
     }
 

@@ -11,4 +11,5 @@
     <string name="next">Next</string>
     <string name="validate">Validate</string>
     <string name="import_online_dataset">Import from URL</string>
+    <string name="delete">Delete</string>
 </resources>
