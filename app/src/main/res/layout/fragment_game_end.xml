@@ -3,8 +3,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".ui.game.GameEndFragment">
+
+    <ImageButton
+        android:id="@+id/button_close"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="top|end"
+        android:alpha="0.7"
+        android:background="?android:selectableItemBackgroundBorderless"
+        android:src="@drawable/close_icon"
+        app:tint="@color/colorAccent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView_end_game"

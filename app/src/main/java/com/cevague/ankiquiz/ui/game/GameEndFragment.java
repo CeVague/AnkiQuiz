@@ -10,6 +10,8 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.cevague.ankiquiz.R;
 import com.cevague.ankiquiz.sql.CardModel;
@@ -47,6 +49,8 @@ public class GameEndFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
 
+        ImageButton closeButton = view.findViewById(R.id.button_close);
+        closeButton.setOnClickListener(v -> requireActivity().onBackPressed());
 
         // Enregistrement des modification des cards
         try (DBHelper db = new DBHelper(getContext())) {

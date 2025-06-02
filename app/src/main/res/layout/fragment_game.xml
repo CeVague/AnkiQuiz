@@ -12,7 +12,6 @@
         android:layout_height="48dp"
         android:layout_alignParentEnd="true"
         android:layout_gravity="top|end"
-        android:layout_margin="10dp"
         android:alpha="0.7"
         android:background="?android:selectableItemBackgroundBorderless"
         android:src="@drawable/close_icon"
